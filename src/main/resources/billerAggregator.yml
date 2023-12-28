@@ -1,0 +1,10 @@
+billers:
+  details:
+  - id: "001"
+    biller: "Biller1"
+    billerAccount: "BillerAccount1"
+    billerCategory: "BillerCategory1"
+  - id: "002"
+    biller: "Biller2"
+    billerAccount: "BillerAccount2"
+    billerCategory: "BillerCategory2"

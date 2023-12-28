@@ -1,0 +1,57 @@
+camel:
+  server-port: 5000
+  springboot:
+    main-run-controller: true
+  dataformat:
+    json-jackson:
+      auto-discover-object-mapper: true
+
+dfspids: "DFSPIDS"
+
+server:
+  port: 8080
+
+zeebe:
+  client:
+    max-execution-threads: 1000
+    evenly-allocated-max-jobs: 1000
+  #    max-execution-threads: 100
+  #    number-of-workers: 8
+  #    evenly-allocated-max-jobs: "#{${zeebe.client.max-execution-threads} / ${zeebe.client.number-of-workers}}"
+  broker:
+    contactpoint: "127.0.0.1:26500"
+
+bpmn:
+  flows:
+    bill-pay: "bill_inquiry-{dfspid}"
+    payment-notification: "payment_notification-{dfspid}"
+
+ams:
+  local:
+    server-cert-check: false
+    enabled: true
+
+
+logging:
+  level:
+    root: INFO
+
+async:
+  core_pool_size: 10
+  max_pool_size: 10
+  queue_capacity: 100
+
+threshold:
+  amount: 20000
+
+
+billers:
+  details:
+    - id: "001"
+      biller: "Biller1"
+      billerAccount: "BillerAccount1"
+      billerCategory: "BillerCategory1"
+    - id: "002"
+      biller: "Biller2"
+      billerAccount: "BillerAccount2"
+      billerCategory: "BillerCategory2"
