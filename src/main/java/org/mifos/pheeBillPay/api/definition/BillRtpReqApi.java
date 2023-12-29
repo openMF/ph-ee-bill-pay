@@ -18,6 +18,6 @@ public interface BillRtpReqApi {
     @PostMapping("/billTransferRequests")
     ResponseEntity<ResponseDTO> billRTPReq(@RequestHeader(value = "X-Platform-TenantId") String tenantId,
             @RequestHeader(value = "X-Client-Correlation-ID") String correlationId,
-            @RequestHeader(value = "X-Callback-URL") String callbackUrl, @RequestParam(value = "X-Biller-Id") String billerId,
+            @RequestHeader(value = "X-Callback-URL") String callbackUrl, @RequestHeader(value = "X-Biller-Id") String billerId,
             @RequestBody BillRTPReqDTO billRTPReqDTO) throws ExecutionException, InterruptedException;
 }

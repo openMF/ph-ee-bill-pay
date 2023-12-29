@@ -11,13 +11,26 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
 import org.json.JSONObject;
+import org.mifos.pheeBillPay.data.BillDetails;
+import org.mifos.pheeBillPay.data.BillRTPReqDTO;
+import org.mifos.pheeBillPay.data.BillRTPResponseDTO;
+import org.mifos.pheeBillPay.data.PayerRequestDTO;
+import org.mifos.pheeBillPay.data.ResponseDTO;
 import org.mifos.pheeBillPay.utils.Headers;
 import org.mifos.pheeBillPay.utils.SpringWrapperUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestTemplate;
 
 @Component
 public class ZeebeWorkers {
@@ -38,7 +51,14 @@ public class ZeebeWorkers {
 
     @Value("${zeebe.client.evenly-allocated-max-jobs}")
     private int workerMaxJobs;
-
+    @Value("${ph_ee_connector.contactpoint}")
+    private String connectorContactPoint;
+    @Value("${ph_ee_bill_pay.contactpoint}")
+    private String billPayContactPoint;
+    @Value("${ph_ee_bill_pay.endpoint.payerRtpResponse}")
+    private String payerRtpResponseEndpoint;
+    @Value("${payer_fsp.tenant}")
+    private String payerFspTenant;
     @PostConstruct
     public void setupWorkers() {
         // billerdetails
@@ -105,6 +125,90 @@ public class ZeebeWorkers {
             zeebeClient.newCompleteCommand(job.getKey()).variables(variables).send();
             logger.info("Zeebe variable {}", job.getVariablesAsMap());
         }).name("billPayResponse").maxJobsActive(workerMaxJobs).open();
+
+        zeebeClient.newWorker().jobType("payerRtpRequest").handler((client, job) -> {
+            logger.info("Job '{}' started from process '{}' with key {}", job.getType(), job.getBpmnProcessId(), job.getKey());
+            Map<String, Object> variables = job.getVariablesAsMap();
+            String url = connectorContactPoint + "/billTransferRequests";
+            String tenantId = variables.get("tenantId").toString();
+            //String correlationId = variables.get("clientCorrelationId").toString();
+            String body = variables.get(BILL_RTP_REQ).toString();
+            String billerId  = variables.get("billerId").toString();
+            BillRTPReqDTO billRTPReqDTO = objectMapper.readValue(body, BillRTPReqDTO.class);
+            PayerRequestDTO payerRequestDTO = new PayerRequestDTO();
+            payerRequestDTO.setRequestId(String.valueOf(job.getKey()));
+            payerRequestDTO.setRtpId(123456);
+            payerRequestDTO.setTransactionId("123234455");
+            payerRequestDTO.setBillDetails(new BillDetails(billRTPReqDTO.getBillId(), billRTPReqDTO.getBill().getBillerName(), billRTPReqDTO.getBill().getAmount()));
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonPayload = objectMapper.writeValueAsString(payerRequestDTO);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("X-Platform-TenantId", payerFspTenant);
+            headers.set("X-Client-Correlation-ID", String.valueOf(job.getKey()));
+            headers.set("X-Biller-Id", billerId);
+            headers.set("X-Callback-URL", billPayContactPoint + payerRtpResponseEndpoint);
+
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<String> requestEntity = new HttpEntity<>(jsonPayload, headers);
+
+            RestTemplate restTemplate = new RestTemplate();
+
+            ResponseEntity<ResponseDTO> responseEntity = null;
+
+            try {
+                responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, ResponseDTO.class);
+            } catch (HttpClientErrorException | HttpServerErrorException e) {
+                logger.error(e.getMessage());
+            }
+            if(responseEntity!=null && responseEntity.getBody().getResponseCode().equals("00")){
+                variables.put(PAYER_RTP_REQ, true);
+            }
+            else {
+                variables.put(PAYER_RTP_REQ, false);
+            }
+            client.newCompleteCommand(job.getKey()).variables(variables).send();
+        }).name("payerRtpRequest").maxJobsActive(workerMaxJobs).open();;
+
+        zeebeClient.newWorker().jobType("billerRtpResponse").handler((client, job) -> {
+            logger.info("Job '{}' started from process '{}' with key {}", job.getType(), job.getBpmnProcessId(), job.getKey());
+            Map<String, Object> variables = job.getVariablesAsMap();
+            String tenantId = variables.get("tenantId").toString();
+            String correlationId = variables.get("clientCorrelationId").toString();
+            String callbackUrl = variables.get(CALLBACK_URL).toString();
+            HttpHeaders headers = new HttpHeaders();
+            String billId= variables.get("billId").toString();
+            String billerName= variables.get("billerName").toString();
+            String amount= variables.get("amount").toString();
+            String rtpStatus= variables.get("rtpStatus").toString();
+            String rejectReason= variables.get("rejectReason").toString();
+
+
+            headers.set("X-Platform-TenantId", tenantId);
+            headers.set("X-Client-Correlation-ID", correlationId);
+
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            BillRTPResponseDTO billRTPResponseDTO =  new BillRTPResponseDTO();
+            billRTPResponseDTO.setRequestId(correlationId);
+            billRTPResponseDTO.setBillId(billId);
+            billRTPResponseDTO.setRtpStatus(rtpStatus);
+            billRTPResponseDTO.setRejectReason(rejectReason);
+
+
+
+            HttpEntity<BillRTPResponseDTO> requestEntity = new HttpEntity<>(billRTPResponseDTO, headers);
+
+            RestTemplate restTemplate = new RestTemplate();
+
+            ResponseEntity<ResponseDTO> responseEntity = null;
+
+            try {
+                responseEntity = restTemplate.exchange(callbackUrl, HttpMethod.POST, requestEntity, ResponseDTO.class);
+            } catch (HttpClientErrorException | HttpServerErrorException e) {
+                logger.error(e.getMessage());
+            }
+        }).name("billerRtpResponse").maxJobsActive(workerMaxJobs).open();;
 
     }
 

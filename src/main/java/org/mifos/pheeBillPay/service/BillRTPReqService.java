@@ -23,7 +23,7 @@ public class BillRTPReqService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Value("${bpmn.flows.bill-pay}")
+    @Value("${bpmn.flows.bill-request}")
     String billPayFlow;
 
     String transactionId;
