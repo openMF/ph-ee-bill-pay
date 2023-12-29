@@ -40,4 +40,5 @@ public class ZeebeVariables {
     public static final String BILL_PAY_FAILED = "billPayFailed";
     public static final String PAYER_FSP = "X-PayerFSP-Id";
     public static final String PLATFORM_TENANT = "Platform-TenantId";
+    public static final String PAYER_RTP_REQ="payerRtpRequest";
 }

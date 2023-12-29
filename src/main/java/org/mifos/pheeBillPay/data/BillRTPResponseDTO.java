@@ -4,16 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.stereotype.Component;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Component
-public class ResponseDTO {
-
-    private String responseCode;
-    private String responseDescription;
-    private String requestID;
+public class BillRTPResponseDTO {
+    private String requestId;
+    private String rtpId;
+    private String billId;
+    private String rtpStatus;
+    private String rejectReason;
 }

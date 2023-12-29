@@ -1,13 +1,13 @@
 package org.mifos.pheeBillPay.api.definition;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.concurrent.ExecutionException;
 import org.mifos.pheeBillPay.data.BillRTPReqDTO;
 import org.mifos.pheeBillPay.data.ResponseDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
