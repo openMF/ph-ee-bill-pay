@@ -131,12 +131,19 @@ public class ZeebeWorkers {
             Map<String, Object> variables = job.getVariablesAsMap();
             String url = connectorContactPoint + "/billTransferRequests";
             String tenantId = variables.get("tenantId").toString();
+            String transactionId = "123456778";
+            String clientCorrelation = (String) variables.get("X-CorrelationID");
             //String correlationId = variables.get("clientCorrelationId").toString();
+            variables.put(TRANSACTION_ID, transactionId);
+            variables.put("payerTenantId", payerFspTenant);
+            variables.put("payerCallbackUrl", billPayContactPoint + payerRtpResponseEndpoint);
             String body = variables.get(BILL_RTP_REQ).toString();
             String billerId  = variables.get("billerId").toString();
             BillRTPReqDTO billRTPReqDTO = objectMapper.readValue(body, BillRTPReqDTO.class);
+            variables.put(BILLER_NAME, billRTPReqDTO.getBill().getBillerName());
+            variables.put(BILL_AMOUNT, billRTPReqDTO.getBill().getAmount());
             PayerRequestDTO payerRequestDTO = new PayerRequestDTO();
-            payerRequestDTO.setRequestId(String.valueOf(job.getKey()));
+            payerRequestDTO.setRequestId(String.valueOf(job.getElementInstanceKey()));
             payerRequestDTO.setRtpId(123456);
             payerRequestDTO.setTransactionId("123234455");
             payerRequestDTO.setBillDetails(new BillDetails(billRTPReqDTO.getBillId(), billRTPReqDTO.getBill().getBillerName(), billRTPReqDTO.getBill().getAmount()));
@@ -145,7 +152,7 @@ public class ZeebeWorkers {
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("X-Platform-TenantId", payerFspTenant);
-            headers.set("X-Client-Correlation-ID", String.valueOf(job.getKey()));
+            headers.set("X-Client-Correlation-ID", clientCorrelation);
             headers.set("X-Biller-Id", billerId);
             headers.set("X-Callback-URL", billPayContactPoint + payerRtpResponseEndpoint);
 
@@ -174,15 +181,14 @@ public class ZeebeWorkers {
         zeebeClient.newWorker().jobType("billerRtpResponse").handler((client, job) -> {
             logger.info("Job '{}' started from process '{}' with key {}", job.getType(), job.getBpmnProcessId(), job.getKey());
             Map<String, Object> variables = job.getVariablesAsMap();
-            String tenantId = variables.get("tenantId").toString();
-            String correlationId = variables.get("clientCorrelationId").toString();
+            String tenantId = variables.get(TENANT_ID).toString();
+            String correlationId = variables.get(CLIENTCORRELATIONID).toString();
             String callbackUrl = variables.get(CALLBACK_URL).toString();
             HttpHeaders headers = new HttpHeaders();
-            String billId= variables.get("billId").toString();
-            String billerName= variables.get("billerName").toString();
-            String amount= variables.get("amount").toString();
-            String rtpStatus= variables.get("rtpStatus").toString();
-            String rejectReason= variables.get("rejectReason").toString();
+            String billId= variables.get(BILL_ID).toString();
+            String billerName= variables.get(BILLER_NAME).toString();
+            String amount= variables.get(BILL_AMOUNT).toString();
+            String rtpStatus= variables.get(RTP_STATUS).toString();
 
 
             headers.set("X-Platform-TenantId", tenantId);
@@ -193,7 +199,7 @@ public class ZeebeWorkers {
             billRTPResponseDTO.setRequestId(correlationId);
             billRTPResponseDTO.setBillId(billId);
             billRTPResponseDTO.setRtpStatus(rtpStatus);
-            billRTPResponseDTO.setRejectReason(rejectReason);
+            //billRTPResponseDTO.setRejectReason(rejectReason);
 
 
 
@@ -208,6 +214,7 @@ public class ZeebeWorkers {
             } catch (HttpClientErrorException | HttpServerErrorException e) {
                 logger.error(e.getMessage());
             }
+            client.newCompleteCommand(job.getKey()).variables(variables).send();
         }).name("billerRtpResponse").maxJobsActive(workerMaxJobs).open();;
 
     }

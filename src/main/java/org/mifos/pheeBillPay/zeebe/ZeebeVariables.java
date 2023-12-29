@@ -23,6 +23,7 @@ public class ZeebeVariables {
     public static final String CALLBACK_URL = "X-CallbackURL";
     public static final String BILLER_ID = "billerId";
     public static final String BILLER_NAME = "billerName";
+    public static final String BILL_AMOUNT = "billAmount";
     public static final String BILLER_CATEGORY = "billerCategory";
     public static final String BILL_RTP_REQ = "billRTPReqBody";
     public static final String BILL_REQ_ID = "billRequestId";
@@ -41,4 +42,5 @@ public class ZeebeVariables {
     public static final String PAYER_FSP = "X-PayerFSP-Id";
     public static final String PLATFORM_TENANT = "Platform-TenantId";
     public static final String PAYER_RTP_REQ="payerRtpRequest";
+    public static final String RTP_STATUS = "rtpStatus";
 }

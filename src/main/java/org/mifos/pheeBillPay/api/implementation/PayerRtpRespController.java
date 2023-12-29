@@ -27,24 +27,6 @@ public class PayerRtpRespController implements PayerRtpRespApi {
     private ObjectMapper objectMapper;
     @Override
     public ResponseEntity<ResponseDTO> billRTPResp(String tenantId, String correlationId, String billerId, PayerRTPResponse payerRTPResponse) throws ExecutionException, InterruptedException {
-        Map<String, Object> variables = new HashMap<>();
-
-        String transactionId = payerRTPResponse.getTxnId();
-        variables.put("billStatus", payerRTPResponse.getRtpStatus());
-
-        if(payerRTPResponse.getRtpStatus().equals("00")) {
-            variables.put("billAccepted", true);
-        } else {
-            variables.put("billAccepted", true);
-            variables.put("billRejectReason", payerRTPResponse.getRejectReason());
-        }
-
-
-        if (zeebeClient != null) {
-
-            zeebeClient.newPublishMessageCommand().messageName("payerRtpResponse").correlationKey(transactionId)
-                    .timeToLive(Duration.ofMillis(50000)).variables(variables).send();
-        }
         ResponseDTO responseDTO = new ResponseDTO(SUCCESS_RESPONSE_CODE.getValue(), SUCCESS_RESPONSE_MESSAGE.getValue(), correlationId);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(responseDTO);
     }
