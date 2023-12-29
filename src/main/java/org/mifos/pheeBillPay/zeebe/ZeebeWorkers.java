@@ -51,11 +51,11 @@ public class ZeebeWorkers {
 
     @Value("${zeebe.client.evenly-allocated-max-jobs}")
     private int workerMaxJobs;
-    @Value("${ph_ee_connector.contactpoint}")
+    @Value("${connector.contactpoint}")
     private String connectorContactPoint;
-    @Value("${ph_ee_bill_pay.contactpoint}")
+    @Value("${billpay.contactpoint}")
     private String billPayContactPoint;
-    @Value("${ph_ee_bill_pay.endpoint.payerRtpResponse}")
+    @Value("${billpay.endpoint.payerRtpResponse}")
     private String payerRtpResponseEndpoint;
     @Value("${payer_fsp.tenant}")
     private String payerFspTenant;

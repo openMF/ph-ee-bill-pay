@@ -57,12 +57,12 @@ billers:
       billerAccount: "BillerAccount2"
       billerCategory: "BillerCategory2"
 
-ph_ee_connector:
+connector:
   contactpoint: "http://ph-ee-connector:8080"
   endpoint:
     payerRtp: "/billTransferRequests"
 
-ph_ee_bill_pay:
+billpay:
   contactpoint: "http://ph-ee-bill-pay:8080"
   endpoint:
     payerRtpResponse: "/billTransferRequests"
