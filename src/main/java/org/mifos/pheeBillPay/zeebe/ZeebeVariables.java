@@ -43,4 +43,5 @@ public class ZeebeVariables {
     public static final String PLATFORM_TENANT = "Platform-TenantId";
     public static final String PAYER_RTP_REQ="payerRtpRequest";
     public static final String RTP_STATUS = "rtpStatus";
+    public static final String RTP_ID = "rtpId";
 }

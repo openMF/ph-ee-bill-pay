@@ -142,6 +142,7 @@ public class ZeebeWorkers {
             BillRTPReqDTO billRTPReqDTO = objectMapper.readValue(body, BillRTPReqDTO.class);
             variables.put(BILLER_NAME, billRTPReqDTO.getBill().getBillerName());
             variables.put(BILL_AMOUNT, billRTPReqDTO.getBill().getAmount());
+            variables.put(RTP_ID, 123456);
             PayerRequestDTO payerRequestDTO = new PayerRequestDTO();
             payerRequestDTO.setRequestId(String.valueOf(job.getElementInstanceKey()));
             payerRequestDTO.setRtpId(123456);
@@ -189,6 +190,7 @@ public class ZeebeWorkers {
             String billerName= variables.get(BILLER_NAME).toString();
             String amount= variables.get(BILL_AMOUNT).toString();
             String rtpStatus= variables.get(RTP_STATUS).toString();
+            String rtpId = variables.get(RTP_ID).toString();
 
 
             headers.set("X-Platform-TenantId", tenantId);
@@ -199,6 +201,7 @@ public class ZeebeWorkers {
             billRTPResponseDTO.setRequestId(correlationId);
             billRTPResponseDTO.setBillId(billId);
             billRTPResponseDTO.setRtpStatus(rtpStatus);
+            billRTPResponseDTO.setRtpId(rtpId);
             //billRTPResponseDTO.setRejectReason(rejectReason);
 
 
