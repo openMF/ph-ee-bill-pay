@@ -10,6 +10,11 @@ import javax.annotation.PostConstruct;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.json.JSONObject;
 import org.mifos.pheeBillPay.data.BillDetails;
 import org.mifos.pheeBillPay.data.BillRTPReqDTO;
@@ -27,6 +32,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -163,6 +169,12 @@ public class ZeebeWorkers {
 
             RestTemplate restTemplate = new RestTemplate();
 
+            CloseableHttpClient httpClient = HttpClients.custom()
+                    .setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, (certificate, authType) -> true).build())
+                    .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                    .build();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClient));
+
             ResponseEntity<ResponseDTO> responseEntity = null;
 
             try {
@@ -186,6 +198,7 @@ public class ZeebeWorkers {
             String correlationId = variables.get(CLIENTCORRELATIONID).toString();
             String callbackUrl = variables.get(CALLBACK_URL).toString();
             HttpHeaders headers = new HttpHeaders();
+
             String billId= variables.get(BILL_ID).toString();
             String billerName= variables.get(BILLER_NAME).toString();
             String amount= variables.get(BILL_AMOUNT).toString();
@@ -209,6 +222,12 @@ public class ZeebeWorkers {
             HttpEntity<BillRTPResponseDTO> requestEntity = new HttpEntity<>(billRTPResponseDTO, headers);
 
             RestTemplate restTemplate = new RestTemplate();
+
+            CloseableHttpClient httpClient = HttpClients.custom()
+                    .setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, (certificate, authType) -> true).build())
+                    .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                    .build();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClient));
 
             ResponseEntity<ResponseDTO> responseEntity = null;
 
