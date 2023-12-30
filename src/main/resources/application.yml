@@ -25,6 +25,7 @@ bpmn:
   flows:
     bill-pay: "bill_inquiry-{dfspid}"
     payment-notification: "payment_notification-{dfspid}"
+    bill-request: "bill_request-{dfspid}"
 
 ams:
   local:
@@ -55,3 +56,16 @@ billers:
       biller: "Biller2"
       billerAccount: "BillerAccount2"
       billerCategory: "BillerCategory2"
+
+connector:
+  contactpoint: "http://ph-ee-connector:8080"
+  endpoint:
+    payerRtp: "/billTransferRequests"
+
+billpay:
+  contactpoint: "http://ph-ee-bill-pay:8080"
+  endpoint:
+    payerRtpResponse: "/billTransferRequests"
+
+payer_fsp:
+  tenant: "lion"
