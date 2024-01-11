@@ -37,7 +37,7 @@ jobs:
 
             # Push the Docker image to Docker Hub
             docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
-            docker push "openmf/ph-ee-bill-pay$IMAGE_TAG"
+            docker push "openmf/ph-ee-bill-pay:$IMAGE_TAG"
 
           # when: always  # The job will be executed even if there's no match for the tag filter
 
