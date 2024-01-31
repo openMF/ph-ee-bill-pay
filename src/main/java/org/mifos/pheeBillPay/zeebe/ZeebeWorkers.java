@@ -2,6 +2,7 @@ package org.mifos.pheeBillPay.zeebe;
 
 import static org.mifos.pheeBillPay.zeebe.ZeebeVariables.*;
 
+import ch.qos.logback.classic.joran.action.EvaluatorAction;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
@@ -80,11 +81,17 @@ public class ZeebeWorkers {
             producerTemplate.send("direct:biller-fetch", exchange);
             Boolean response = exchange.getProperty(BILLER_FETCH_FAILED, Boolean.class);
             variables.put(BILLER_FETCH_FAILED, response);
-            variables.put(BILLER_DETAILS, exchange.getProperty(BILLER_DETAILS, String.class));
-            variables.put(BILLER_ID, exchange.getProperty(BILLER_ID, String.class));
-            variables.put(BILLER_NAME, exchange.getProperty(BILLER_NAME, String.class));
-            variables.put(BILLER_TYPE, exchange.getProperty(BILLER_TYPE, String.class));
-            variables.put(BILLER_ACCOUNT, exchange.getProperty(BILLER_ACCOUNT, String.class));
+            if(variables.get(BILLER_FETCH_FAILED).equals(false)){
+                variables.put(BILLER_DETAILS, exchange.getProperty(BILLER_DETAILS, String.class));
+                variables.put(BILLER_ID, exchange.getProperty(BILLER_ID, String.class));
+                variables.put(BILLER_NAME, exchange.getProperty(BILLER_NAME, String.class));
+                variables.put(BILLER_TYPE, exchange.getProperty(BILLER_TYPE, String.class));
+                variables.put(BILLER_ACCOUNT, exchange.getProperty(BILLER_ACCOUNT, String.class));
+                variables.put(BILL_ID,exchange.getProperty(BILL_ID,String.class));
+            }
+            else {
+                variables.put(ERROR_INFORMATION,exchange.getProperty(ERROR_INFORMATION));
+            }
             logger.info("Zeebe variable {}", job.getVariablesAsMap());
             zeebeClient.newCompleteCommand(job.getKey()).variables(variables).send().join();
             ;
@@ -101,9 +108,13 @@ public class ZeebeWorkers {
                     .addHeader(PAYER_FSP, variables.get("payerFspId").toString()).addHeader(BILL_ID, variables.get(BILL_ID).toString())
                     .build();
             Exchange exchange = SpringWrapperUtil.getDefaultWrappedExchange(producerTemplate.getCamelContext(), headers, null);
-            exchange.setProperty(BILLER_DETAILS, variables.get(BILLER_DETAILS).toString());
+                if (variables.get(BILLER_DETAILS) != null) {
+                exchange.setProperty(BILLER_DETAILS, variables.get(BILLER_DETAILS).toString());
+            }
             exchange.setProperty(CALLBACK_URL, variables.get(CALLBACK_URL).toString());
             exchange.setProperty(BILL_INQUIRY_RESPONSE, variables.get(BILL_INQUIRY_RESPONSE));
+            exchange.setProperty(ERROR_INFORMATION, variables.get(ERROR_INFORMATION));
+            exchange.setProperty(CLIENTCORRELATIONID,variables.get(CLIENTCORRELATIONID));
             producerTemplate.send("direct:bill-inquiry-response", exchange);
             variables.put(BILL_PAY_RESPONSE, exchange.getIn().getBody(String.class));
             variables.put(BILL_PAY_FAILED, exchange.getProperty(BILL_PAY_FAILED));

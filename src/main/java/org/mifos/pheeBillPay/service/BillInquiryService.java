@@ -22,24 +22,31 @@ public class BillInquiryService {
     @Value("${bpmn.flows.bill-pay}")
     String billPayFlow;
 
+    @Value("${billPay.FspNotOnboarded}")
+    private String fspNotOnboarded;
+
     String transactionId;
 
     public String billInquiry(String tenantId, String correlationId, String callbackUrl, String payerFspId, String billId, String field) {
         Map<String, Object> extraVariables = new HashMap<>();
-        extraVariables.put(TENANT_ID, tenantId);
-        extraVariables.put(CLIENTCORRELATIONID, correlationId);
-        extraVariables.put(CALLBACK_URL, callbackUrl);
-        extraVariables.put(PAYER_FSP_ID, payerFspId);
-        extraVariables.put(BILL_ID, billId);
-        extraVariables.put(FIELD, field);
-        String tenantSpecificBpmn = billPayFlow.replace("{dfspid}", tenantId);
-        try {
-            transactionId = zeebeProcessStarter.startZeebeWorkflow(tenantSpecificBpmn, null, extraVariables);
-        } catch (Exception e) {
-            logger.info("Exception in starting workflow: {}", e.getMessage());
-            transactionId = "NA";
+        if(billId.equals(fspNotOnboarded)){
+            transactionId = "Participant Not Onboarded";
         }
-
+        else {
+            extraVariables.put(TENANT_ID, tenantId);
+            extraVariables.put(CLIENTCORRELATIONID, correlationId);
+            extraVariables.put(CALLBACK_URL, callbackUrl);
+            extraVariables.put(PAYER_FSP_ID, payerFspId);
+            extraVariables.put(BILL_ID, billId);
+            extraVariables.put(FIELD, field);
+            String tenantSpecificBpmn = billPayFlow.replace("{dfspid}", tenantId);
+            try {
+                transactionId = zeebeProcessStarter.startZeebeWorkflow(tenantSpecificBpmn, null, extraVariables);
+            } catch (Exception e) {
+                logger.info("Exception in starting workflow: {}", e.getMessage());
+                transactionId = "Exception in starting workflow";
+            }
+        }
         return transactionId;
     }
 
