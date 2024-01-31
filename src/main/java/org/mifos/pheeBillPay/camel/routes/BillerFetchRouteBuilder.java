@@ -40,7 +40,7 @@ public class BillerFetchRouteBuilder extends ErrorHandlerRouteBuilder {
             BillerDetails billerDetails = getBillDetails(billId);
             if (billerDetails != null) {
                 if(billerDetails.getId().equals(billId)) {
-                    if(billId.equals("billIdEmpty")){
+                    if(billId.equals(billIdEmpty)){
                         exchange.setProperty(BILL_ID,"00");
                     }
                     else {
