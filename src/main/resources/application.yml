@@ -9,7 +9,7 @@ camel:
 dfspids: "DFSPIDS"
 
 server:
-  port: 8081
+  port: 8080
 
 zeebe:
   client:
@@ -56,6 +56,10 @@ billers:
       biller: "Biller2"
       billerAccount: "BillerAccount2"
       billerCategory: "BillerCategory2"
+    - id: "0043"
+      biller: "Biller3"
+      billerAccount: "BillerAccount3"
+      billerCategory: "BillerCategory3"
     - id: "004"
       biller: "Biller4"
       billerAccount: "BillerAccount4"
