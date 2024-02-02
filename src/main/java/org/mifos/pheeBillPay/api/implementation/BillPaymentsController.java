@@ -20,9 +20,10 @@ public class BillPaymentsController implements BillPaymentsApi {
     public ResponseEntity<BillInquiryResponseDTO> billPayments(String tenantId, String correlationId, String callbackURL, String payerFspId,
             BillPaymentsReqDTO body) throws ExecutionException {
         BillInquiryResponseDTO billInquiryResponseDTO = new BillInquiryResponseDTO();
-        if(!checkforValidity(tenantId,correlationId,callbackURL,payerFspId,body).equals("Valid")){
+        String response = checkforValidity(tenantId,correlationId,callbackURL,payerFspId,body);
+        if(!response.equals("Valid")){
             billInquiryResponseDTO.setTransactionId("Invalid Request: Mandatory Fields Missing, Missing field is "+
-                    checkforValidity(tenantId,correlationId,callbackURL,payerFspId,body));
+                    response);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(billInquiryResponseDTO);
         }
         try {

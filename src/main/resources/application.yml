@@ -56,7 +56,7 @@ billers:
       biller: "Biller2"
       billerAccount: "BillerAccount2"
       billerCategory: "BillerCategory2"
-    - id: "0043"
+    - id: "003"
       biller: "Biller3"
       billerAccount: "BillerAccount3"
       billerCategory: "BillerCategory3"
@@ -80,6 +80,6 @@ payer_fsp:
 
 billPay:
   FspNotOnboarded : "003"
-  billIdEmpty : "004"
-  billIdEmptyId : "00"
+  billIdEmptyOriginal : "004"
+  billIdEmpty : "00"
   billPayTimeoutId : "005"

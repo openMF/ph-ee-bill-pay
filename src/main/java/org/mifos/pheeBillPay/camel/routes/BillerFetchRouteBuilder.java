@@ -27,6 +27,8 @@ public class BillerFetchRouteBuilder extends ErrorHandlerRouteBuilder {
 
     @Value("${billPay.billIdEmpty}")
     private String billIdEmpty;
+    @Value("${billPay.billIdEmptyOriginal}")
+    private String billIdEmptyOriginal;
 
     @Autowired
     private BillerDetailsProperties billerDetailsProperties;
@@ -40,8 +42,8 @@ public class BillerFetchRouteBuilder extends ErrorHandlerRouteBuilder {
             BillerDetails billerDetails = getBillDetails(billId);
             if (billerDetails != null) {
                 if(billerDetails.getId().equals(billId)) {
-                    if(billId.equals(billIdEmpty)){
-                        exchange.setProperty(BILL_ID,"00");
+                    if(billId.equals(billIdEmptyOriginal)){
+                        exchange.setProperty(BILL_ID,billIdEmpty);
                     }
                     else {
                         exchange.setProperty(BILL_ID,billId);
