@@ -56,6 +56,14 @@ billers:
       biller: "Biller2"
       billerAccount: "BillerAccount2"
       billerCategory: "BillerCategory2"
+    - id: "003"
+      biller: "Biller3"
+      billerAccount: "BillerAccount3"
+      billerCategory: "BillerCategory3"
+    - id: "004"
+      biller: "Biller4"
+      billerAccount: "BillerAccount4"
+      billerCategory: "BillerCategory4"
 
 connector:
   contactpoint: "http://ph-ee-connector:8080"
@@ -69,3 +77,9 @@ billpay:
 
 payer_fsp:
   tenant: "lion"
+
+billPay:
+  FspNotOnboarded : "003"
+  billIdEmptyOriginal : "004"
+  billIdEmpty : "00"
+  billPayTimeoutId : "005"

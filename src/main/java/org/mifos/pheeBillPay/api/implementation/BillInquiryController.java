@@ -26,6 +26,11 @@ public class BillInquiryController implements BillInquiryApi {
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(billInquiryResponseDTO);
+        if(billInquiryResponseDTO.getTransactionId().equals("Exception in starting workflow") ||
+                billInquiryResponseDTO.getTransactionId().equals("Participant Not Onboarded")){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(billInquiryResponseDTO);
+        }
+        else
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(billInquiryResponseDTO);
     }
 }
