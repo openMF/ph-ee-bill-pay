@@ -3,9 +3,12 @@ package org.mifos.pheeBillPay.zeebe;
 import static org.mifos.pheeBillPay.zeebe.ZeebeVariables.*;
 
 import ch.qos.logback.classic.joran.action.EvaluatorAction;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
+
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 import org.apache.camel.CamelContext;
@@ -157,6 +160,18 @@ public class ZeebeWorkers {
             String body = variables.get(BILL_RTP_REQ).toString();
             String billerId  = variables.get("billerId").toString();
             BillRTPReqDTO billRTPReqDTO = objectMapper.readValue(body, BillRTPReqDTO.class);
+            if(billRTPReqDTO.getPayerFspDetail() != null) {
+                if (billRTPReqDTO.getPayerFspDetail().getPayerFspId().equals("rhino") && billRTPReqDTO.getPayerFspDetail().getFinancialAddress().equals("122333")) {
+                    variables.put("payerRtpRequestSuccess", false);
+                    variables.put("errorInformation", "Payer FI was unreachable");
+                }else if(billRTPReqDTO.getPayerFspDetail().getPayerFspId().equals("rhino") && billRTPReqDTO.getPayerFspDetail().getFinancialAddress().equals("1223334444")){
+                    variables.put("payerRtpRequestSuccess", false);
+                    variables.put("errorInformation", "Payer FSP is unable to debit amount");
+                }else {
+                    variables.put("payerRtpRequestSuccess", true);
+                }
+            }
+
             variables.put(BILLER_NAME, billRTPReqDTO.getBill().getBillerName());
             variables.put(BILL_AMOUNT, billRTPReqDTO.getBill().getAmount());
             variables.put(RTP_ID, 123456);
@@ -243,12 +258,48 @@ public class ZeebeWorkers {
             ResponseEntity<ResponseDTO> responseEntity = null;
 
             try {
-                responseEntity = restTemplate.exchange(callbackUrl, HttpMethod.POST, requestEntity, ResponseDTO.class);
+                restTemplate.exchange(callbackUrl, HttpMethod.POST, requestEntity, ResponseDTO.class);
             } catch (HttpClientErrorException | HttpServerErrorException e) {
                 logger.error(e.getMessage());
             }
             client.newCompleteCommand(job.getKey()).variables(variables).send();
         }).name("billerRtpResponse").maxJobsActive(workerMaxJobs).open();;
+
+        zeebeClient.newWorker().jobType("sendError").handler((client, job) -> {
+            logger.info("Job '{}' started from process '{}' with key {}", job.getType(), job.getBpmnProcessId(), job.getKey());
+            Map<String, Object> variables = job.getVariablesAsMap();
+
+            RestTemplate restTemplate = new RestTemplate();
+            CloseableHttpClient httpClient = HttpClients.custom()
+                    .setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, (certificate, authType) -> true).build())
+                    .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                    .build();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClient));
+            String callbackUrl = variables.get(CALLBACK_URL).toString();
+            HttpHeaders headers = new HttpHeaders();
+            ResponseEntity<String> responseEntity = null;
+
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            Map<String, Object> errorInfo = new HashMap<>();
+            errorInfo.put("errorMessage", variables.get("errorInformation").toString());
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonBody = null;
+            try {
+                jsonBody = objectMapper.writeValueAsString(errorInfo);
+            } catch (JsonProcessingException e) {
+                // Handle the exception appropriately
+                logger.error(e.getMessage());
+            }
+            HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
+
+            try {
+                restTemplate.exchange(callbackUrl, HttpMethod.POST, requestEntity, String.class);
+            } catch (HttpClientErrorException | HttpServerErrorException e) {
+                logger.error(e.getMessage());
+            }
+
+            client.newCompleteCommand(job.getKey()).variables(variables).send();
+        }).name("sendError").maxJobsActive(workerMaxJobs).open();;
 
     }
 
