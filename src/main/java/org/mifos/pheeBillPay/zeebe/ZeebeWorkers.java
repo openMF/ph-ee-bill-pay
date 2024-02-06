@@ -268,6 +268,7 @@ public class ZeebeWorkers {
         zeebeClient.newWorker().jobType("sendError").handler((client, job) -> {
             logger.info("Job '{}' started from process '{}' with key {}", job.getType(), job.getBpmnProcessId(), job.getKey());
             Map<String, Object> variables = job.getVariablesAsMap();
+            String correlationId = variables.get(CLIENTCORRELATIONID).toString();
 
             RestTemplate restTemplate = new RestTemplate();
             CloseableHttpClient httpClient = HttpClients.custom()
@@ -277,6 +278,7 @@ public class ZeebeWorkers {
             restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClient));
             String callbackUrl = variables.get(CALLBACK_URL).toString();
             HttpHeaders headers = new HttpHeaders();
+            headers.add("X-Client-Correlation-ID",correlationId);
             ResponseEntity<String> responseEntity = null;
 
             headers.setContentType(MediaType.APPLICATION_JSON);
