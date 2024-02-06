@@ -69,6 +69,14 @@ public class ZeebeWorkers {
     private String payerRtpResponseEndpoint;
     @Value("${payer_fsp.tenant}")
     private String payerFspTenant;
+    @Value("${payer_fsp.mockPayerUnreachable.fspId}")
+    private String mockPayerUnreachableFspId;
+    @Value("${payer_fsp.mockPayerUnreachable.financialAddress}")
+    private String mockPayerUnreachableFinancialAddress;
+    @Value("${payer_fsp.mockDebitFailed.fspId}")
+    private String mockDebitFailedFspId;
+    @Value("${payer_fsp.mockDebitFailed.financialAddress}")
+    private String mockDebitFailedFinancialAddress;
     @PostConstruct
     public void setupWorkers() {
         // billerdetails
@@ -161,10 +169,10 @@ public class ZeebeWorkers {
             String billerId  = variables.get("billerId").toString();
             BillRTPReqDTO billRTPReqDTO = objectMapper.readValue(body, BillRTPReqDTO.class);
             if(billRTPReqDTO.getPayerFspDetail() != null) {
-                if (billRTPReqDTO.getPayerFspDetail().getPayerFspId().equals("rhino") && billRTPReqDTO.getPayerFspDetail().getFinancialAddress().equals("122333")) {
+                if (billRTPReqDTO.getPayerFspDetail().getPayerFspId().equals(mockPayerUnreachableFspId) && billRTPReqDTO.getPayerFspDetail().getFinancialAddress().equals(mockPayerUnreachableFinancialAddress)) {
                     variables.put("payerRtpRequestSuccess", false);
                     variables.put("errorInformation", "Payer FI was unreachable");
-                }else if(billRTPReqDTO.getPayerFspDetail().getPayerFspId().equals("rhino") && billRTPReqDTO.getPayerFspDetail().getFinancialAddress().equals("1223334444")){
+                }else if(billRTPReqDTO.getPayerFspDetail().getPayerFspId().equals(mockDebitFailedFspId) && billRTPReqDTO.getPayerFspDetail().getFinancialAddress().equals(mockDebitFailedFinancialAddress)){
                     variables.put("payerRtpRequestSuccess", false);
                     variables.put("errorInformation", "Payer FSP is unable to debit amount");
                 }else {
