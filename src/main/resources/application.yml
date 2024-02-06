@@ -77,6 +77,12 @@ billpay:
 
 payer_fsp:
   tenant: "lion"
+  mockPayerUnreachable:
+    fspId: "rhino"
+    financialAddress: "122333"
+  mockDebitFailed:
+    fspId: "rhino"
+    financialAddress: "1223334444"
 
 billPay:
   FspNotOnboarded : "003"
