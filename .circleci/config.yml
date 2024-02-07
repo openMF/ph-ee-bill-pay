@@ -57,6 +57,7 @@ jobs:
       - run:
           name: Build Docker image
           command: |
+            ./gradlew checkstyleMain
             ./gradlew bootJar
             docker build -t openmf/ph-ee-bill-pay:latest .
             if [ "$CIRCLE_BRANCH" != "master" ]; then
