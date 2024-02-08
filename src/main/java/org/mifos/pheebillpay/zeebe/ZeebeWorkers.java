@@ -203,7 +203,7 @@ public class ZeebeWorkers {
                     variables.put("payerRtpRequestSuccess", false);
                     variables.put("errorInformation", "Payer FI was unreachable");
                 } else if (billRTPReqDTO.getPayerFspDetail().getPayerFspId().equals(mockDebitFailedFspId)
-                        &&    billRTPReqDTO.getPayerFspDetail().getFinancialAddress().equals(mockDebitFailedFinancialAddress)) {
+                        && billRTPReqDTO.getPayerFspDetail().getFinancialAddress().equals(mockDebitFailedFinancialAddress)) {
                     variables.put("payerRtpRequestSuccess", false);
                     variables.put("errorInformation", "Payer FSP is unable to debit amount");
                 } else {
@@ -347,11 +347,10 @@ public class ZeebeWorkers {
             Map<String, Object> variables = job.getVariablesAsMap();
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-Registering-Institution-ID", variables.get(BILLER_ID).toString());
-            headers.add("X-CallbackURL", identityAccountMapperHostname+accountLookupCallbackEndpoint);
+            headers.add("X-CallbackURL", identityAccountMapperHostname + accountLookupCallbackEndpoint);
             HttpEntity requestEntity = new HttpEntity<>(headers);
             UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(identityAccountMapperHostname + accountLookupEndpoint)
-                    .queryParam("payeeIdentity", variables.get(BILL_ID))
-                    .queryParam("requestId", generateUniqueNumber(10))
+                    .queryParam("payeeIdentity", variables.get(BILL_ID)).queryParam("requestId", generateUniqueNumber(10))
                     .queryParam("paymentModality", "00");
             String finalUrl = builder.toUriString();
 
@@ -368,10 +367,9 @@ public class ZeebeWorkers {
             } catch (HttpClientErrorException | HttpServerErrorException e) {
                 logger.error(e.getMessage());
             }
-            if(responseEntity != null && responseEntity.getStatusCode().equals(HttpStatus.ACCEPTED)){
+            if (responseEntity != null && responseEntity.getStatusCode().equals(HttpStatus.ACCEPTED)) {
                 variables.put("accountLookupFailed", false);
             }
-
 
             client.newCompleteCommand(job.getKey()).variables(variables).send();
         }).name("billAccountLookup").maxJobsActive(workerMaxJobs).open();
@@ -385,6 +383,7 @@ public class ZeebeWorkers {
         String uniqueNumber = timestamp + "" + randomLong;
         return uniqueNumber.substring(0, length);
     }
+
     private void logWorkerDetails(ActivatedJob job) {
         JSONObject jsonJob = new JSONObject();
         jsonJob.put("bpmnProcessId", job.getBpmnProcessId());
