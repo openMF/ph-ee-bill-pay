@@ -30,6 +30,7 @@ import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 import javax.annotation.PostConstruct;
 import org.apache.camel.CamelContext;
@@ -55,6 +56,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -62,6 +64,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class ZeebeWorkers {
@@ -98,6 +101,12 @@ public class ZeebeWorkers {
     private String mockDebitFailedFspId;
     @Value("${payer_fsp.mockDebitFailed.financialAddress}")
     private String mockDebitFailedFinancialAddress;
+    @Value("${identity_account_mapper.hostname}")
+    private String identityAccountMapperHostname;
+    @Value("${identity_account_mapper.account_lookup}")
+    private String accountLookupEndpoint;
+    @Value("${identity_account_mapper.account_lookup_callback}")
+    private String accountLookupCallbackEndpoint;
 
     @PostConstruct
     public void setupWorkers() {
@@ -194,7 +203,7 @@ public class ZeebeWorkers {
                     variables.put("payerRtpRequestSuccess", false);
                     variables.put("errorInformation", "Payer FI was unreachable");
                 } else if (billRTPReqDTO.getPayerFspDetail().getPayerFspId().equals(mockDebitFailedFspId)
-                        && billRTPReqDTO.getPayerFspDetail().getFinancialAddress().equals(mockDebitFailedFinancialAddress)) {
+                        &&    billRTPReqDTO.getPayerFspDetail().getFinancialAddress().equals(mockDebitFailedFinancialAddress)) {
                     variables.put("payerRtpRequestSuccess", false);
                     variables.put("errorInformation", "Payer FSP is unable to debit amount");
                 } else {
@@ -332,8 +341,50 @@ public class ZeebeWorkers {
             client.newCompleteCommand(job.getKey()).variables(variables).send();
         }).name("sendError").maxJobsActive(workerMaxJobs).open();
 
+        zeebeClient.newWorker().jobType("billAccountLookup").handler((client, job) -> {
+            logger.info("Job '{}' started from process '{}' with key {}", job.getType(), job.getBpmnProcessId(), job.getKey());
+            logWorkerDetails(job);
+            Map<String, Object> variables = job.getVariablesAsMap();
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-Registering-Institution-ID", variables.get(BILLER_ID).toString());
+            headers.add("X-CallbackURL", identityAccountMapperHostname+accountLookupCallbackEndpoint);
+            HttpEntity requestEntity = new HttpEntity<>(headers);
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(identityAccountMapperHostname + accountLookupEndpoint)
+                    .queryParam("payeeIdentity", variables.get(BILL_ID))
+                    .queryParam("requestId", generateUniqueNumber(10))
+                    .queryParam("paymentModality", "00");
+            String finalUrl = builder.toUriString();
+
+            RestTemplate restTemplate = new RestTemplate();
+
+            CloseableHttpClient httpClient = HttpClients.custom()
+                    .setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, (certificate, authType) -> true).build())
+                    .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).build();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClient));
+
+            ResponseEntity<ResponseDTO> responseEntity = null;
+            try {
+                responseEntity = restTemplate.exchange(finalUrl, HttpMethod.GET, requestEntity, ResponseDTO.class);
+            } catch (HttpClientErrorException | HttpServerErrorException e) {
+                logger.error(e.getMessage());
+            }
+            if(responseEntity != null && responseEntity.getStatusCode().equals(HttpStatus.ACCEPTED)){
+                variables.put("accountLookupFailed", false);
+            }
+
+
+            client.newCompleteCommand(job.getKey()).variables(variables).send();
+        }).name("billAccountLookup").maxJobsActive(workerMaxJobs).open();
+
     }
 
+    public static String generateUniqueNumber(int length) {
+        Random rand = new Random();
+        long timestamp = System.currentTimeMillis();
+        long randomLong = rand.nextLong(100000000);
+        String uniqueNumber = timestamp + "" + randomLong;
+        return uniqueNumber.substring(0, length);
+    }
     private void logWorkerDetails(ActivatedJob job) {
         JSONObject jsonJob = new JSONObject();
         jsonJob.put("bpmnProcessId", job.getBpmnProcessId());
@@ -347,11 +398,4 @@ public class ZeebeWorkers {
         logger.info("Job started: {}", jsonJob.toString(4));
     }
 
-    public String generateUniqueNumber(int length) {
-        StringBuilder sb = new StringBuilder();
-        while (sb.length() < length) {
-            sb.append(UUID.randomUUID().toString().replaceAll("-", ""));
-        }
-        return sb.substring(0, length);
-    }
 }

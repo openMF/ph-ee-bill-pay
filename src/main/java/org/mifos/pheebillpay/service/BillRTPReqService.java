@@ -46,6 +46,9 @@ public class BillRTPReqService {
             extraVariables.put(BILL_ID, body.getBillId());
             extraVariables.put(BILLER_ID, billerId);
             extraVariables.put(CALLBACK_URL, callBackUrl);
+            if(body.getRequestType().equals("00")){
+                extraVariables.put("accountLookupRequired", true);
+            }
             extraVariables.put("payerFspId", body.getPayerFspDetail().getPayerFspId());
             extraVariables.put("payeePartyIdType", "Bill");
             extraVariables.put("payeePartyId", body.getBillId());
