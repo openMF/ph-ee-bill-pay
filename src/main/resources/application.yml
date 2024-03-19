@@ -64,6 +64,14 @@ billers:
       biller: "Biller4"
       billerAccount: "BillerAccount4"
       billerCategory: "BillerCategory4"
+    - id: "007"
+      biller: "Biller7"
+      billerAccount: "BillerAccount7"
+      billerCategory: "BillerCategory7"
+    - id: "008"
+      biller: "Biller8"
+      billerAccount: "BillerAccount8"
+      billerCategory: "BillerCategory8"
 
 connector:
   contactpoint: "http://ph-ee-connector:8080"
