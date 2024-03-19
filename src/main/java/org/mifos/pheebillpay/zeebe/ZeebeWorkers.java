@@ -259,9 +259,9 @@ public class ZeebeWorkers {
             String amount = variables.get(BILL_AMOUNT).toString();
             String rtpStatus = variables.get(RTP_STATUS).toString();
             String rtpId = variables.get(RTP_ID).toString();
-            BillPaymentsReqDTO billPaymentsReqDTO = new BillPaymentsReqDTO(correlationId, generateUniqueNumber(12), billId, generateUniqueNumber(12));
+            BillPaymentsReqDTO billPaymentsReqDTO = new BillPaymentsReqDTO(correlationId, generateUniqueNumber(12), billId,
+                    generateUniqueNumber(12));
             variables.put(BILL_PAYMENTS_REQ, billPaymentsReqDTO);
-
 
             headers.set("X-Platform-TenantId", tenantId);
             headers.set("X-Client-Correlation-ID", correlationId);
@@ -344,6 +344,7 @@ public class ZeebeWorkers {
         jsonJob.put("workflowInstanceKey", job.getProcessInstanceKey());
         logger.info("Job started: {}", jsonJob.toString(4));
     }
+
     public String generateUniqueNumber(int length) {
         StringBuilder sb = new StringBuilder();
         while (sb.length() < length) {
