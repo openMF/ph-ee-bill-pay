@@ -9,6 +9,7 @@ import static org.mifos.pheebillpay.zeebe.ZeebeVariables.BILLER_TYPE;
 import static org.mifos.pheebillpay.zeebe.ZeebeVariables.BILL_AMOUNT;
 import static org.mifos.pheebillpay.zeebe.ZeebeVariables.BILL_ID;
 import static org.mifos.pheebillpay.zeebe.ZeebeVariables.BILL_INQUIRY_RESPONSE;
+import static org.mifos.pheebillpay.zeebe.ZeebeVariables.BILL_PAYMENTS_REQ;
 import static org.mifos.pheebillpay.zeebe.ZeebeVariables.BILL_PAY_FAILED;
 import static org.mifos.pheebillpay.zeebe.ZeebeVariables.BILL_PAY_RESPONSE;
 import static org.mifos.pheebillpay.zeebe.ZeebeVariables.BILL_RTP_REQ;
@@ -29,6 +30,7 @@ import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import javax.annotation.PostConstruct;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -39,6 +41,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.json.JSONObject;
 import org.mifos.pheebillpay.data.BillDetails;
+import org.mifos.pheebillpay.data.BillPaymentsReqDTO;
 import org.mifos.pheebillpay.data.BillRTPReqDTO;
 import org.mifos.pheebillpay.data.BillRTPResponseDTO;
 import org.mifos.pheebillpay.data.PayerRequestDTO;
@@ -256,6 +259,9 @@ public class ZeebeWorkers {
             String amount = variables.get(BILL_AMOUNT).toString();
             String rtpStatus = variables.get(RTP_STATUS).toString();
             String rtpId = variables.get(RTP_ID).toString();
+            BillPaymentsReqDTO billPaymentsReqDTO = new BillPaymentsReqDTO(correlationId, generateUniqueNumber(12), billId,
+                    generateUniqueNumber(12));
+            variables.put(BILL_PAYMENTS_REQ, billPaymentsReqDTO);
 
             headers.set("X-Platform-TenantId", tenantId);
             headers.set("X-Client-Correlation-ID", correlationId);
@@ -337,5 +343,13 @@ public class ZeebeWorkers {
         jsonJob.put("workflowKey", job.getProcessDefinitionKey());
         jsonJob.put("workflowInstanceKey", job.getProcessInstanceKey());
         logger.info("Job started: {}", jsonJob.toString(4));
+    }
+
+    public String generateUniqueNumber(int length) {
+        StringBuilder sb = new StringBuilder();
+        while (sb.length() < length) {
+            sb.append(UUID.randomUUID().toString().replaceAll("-", ""));
+        }
+        return sb.substring(0, length);
     }
 }
