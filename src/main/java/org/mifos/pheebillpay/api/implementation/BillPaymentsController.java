@@ -22,8 +22,13 @@ public class BillPaymentsController implements BillPaymentsApi {
         BillInquiryResponseDTO billInquiryResponseDTO = new BillInquiryResponseDTO();
         String response = checkforValidity(tenantId, correlationId, callbackURL, payerFspId, body);
         if (!response.equals("Valid")) {
-            billInquiryResponseDTO.setTransactionId("Invalid Request: Mandatory Fields Missing, Missing field is " + response);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(billInquiryResponseDTO);
+            if (response.equals("billId")) {
+                billInquiryResponseDTO.setError("Invalid Request: Bill Id Empty");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(billInquiryResponseDTO);
+            } else {
+                billInquiryResponseDTO.setError("Invalid Request: Mandatory Fields Missing, Missing field is " + response);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(billInquiryResponseDTO);
+            }
         }
         try {
             billInquiryResponseDTO

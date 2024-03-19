@@ -38,6 +38,10 @@ public class BillPaymentsService {
         extraVariables.put(BILL_REQ_ID, body.getBillInquiryRequestId());
         extraVariables.put(CALLBACK_URL, callbackUrl);
         extraVariables.put(BILL_PAYMENTS_REQ, body);
+        extraVariables.put("payeePartyIdType", "Bill");
+        extraVariables.put("payeePartyId", body.getBillId());
+        extraVariables.put("payerPartyIdType", "Bill");
+        extraVariables.put("payerPartyId", payerFspId);
         String tenantSpecificBpmn = paymentNotificationFlow.replace("{dfspid}", tenantId);
         transactionId = zeebeProcessStarter.startZeebeWorkflow(tenantSpecificBpmn, body.toString(), extraVariables);
         return transactionId;

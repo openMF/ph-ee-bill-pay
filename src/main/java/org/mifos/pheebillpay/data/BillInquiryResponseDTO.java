@@ -15,5 +15,6 @@ import org.springframework.stereotype.Component;
 public class BillInquiryResponseDTO implements Serializable {
 
     private String transactionId;
+    private String error;
 
 }

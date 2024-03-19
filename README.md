@@ -11,4 +11,3 @@ Use below command to execute the checkstyle test.
 ```shell
 ./gradlew checkstyleMain
 ```
-
