@@ -47,6 +47,10 @@ public class BillRTPReqService {
             extraVariables.put(BILLER_ID, billerId);
             extraVariables.put(CALLBACK_URL, callBackUrl);
             extraVariables.put("payerFspId", body.getPayerFspDetail().getPayerFspId());
+            extraVariables.put("payeePartyIdType", "Bill");
+            extraVariables.put("payeePartyId", body.getBillId());
+            extraVariables.put("payerPartyIdType", "Bill");
+            extraVariables.put("payerPartyId", billerId);
             String jsonString = null;
 
             try {
