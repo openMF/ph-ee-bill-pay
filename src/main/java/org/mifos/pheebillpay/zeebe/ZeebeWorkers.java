@@ -179,10 +179,10 @@ public class ZeebeWorkers {
             Map<String, Object> variables = job.getVariablesAsMap();
             String url = connectorContactPoint + "/billTransferRequests";
             String tenantId = variables.get("tenantId").toString();
-            String transactionId = "123456778";
+            //String transactionId = "123456778";
             String clientCorrelation = (String) variables.get("X-CorrelationID");
             // String correlationId = variables.get("clientCorrelationId").toString();
-            variables.put(TRANSACTION_ID, transactionId);
+            //variables.put(TRANSACTION_ID, transactionId);
             variables.put("payerTenantId", payerFspTenant);
             variables.put("payerCallbackUrl", billPayContactPoint + payerRtpResponseEndpoint);
             String body = variables.get(BILL_RTP_REQ).toString();
@@ -208,7 +208,7 @@ public class ZeebeWorkers {
             PayerRequestDTO payerRequestDTO = new PayerRequestDTO();
             payerRequestDTO.setRequestId(String.valueOf(job.getElementInstanceKey()));
             payerRequestDTO.setRtpId(123456);
-            payerRequestDTO.setTransactionId("123234455");
+            payerRequestDTO.setTransactionId(variables.get(TRANSACTION_ID).toString());
             payerRequestDTO.setBillDetails(new BillDetails(billRTPReqDTO.getBillId(), billRTPReqDTO.getBill().getBillerName(),
                     billRTPReqDTO.getBill().getAmount()));
             ObjectMapper objectMapper = new ObjectMapper();
