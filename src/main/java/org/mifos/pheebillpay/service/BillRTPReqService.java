@@ -51,6 +51,7 @@ public class BillRTPReqService {
             extraVariables.put("payeePartyId", body.getBillId());
             extraVariables.put("payerPartyIdType", "Bill");
             extraVariables.put("payerPartyId", billerId);
+            extraVariables.put("state", "INITIATED");
             String jsonString = null;
 
             try {
