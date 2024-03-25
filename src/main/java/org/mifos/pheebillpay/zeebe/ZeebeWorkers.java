@@ -149,8 +149,8 @@ public class ZeebeWorkers {
             producerTemplate.send("direct:bill-inquiry-response", exchange);
             variables.put(BILL_PAY_RESPONSE, exchange.getIn().getBody(String.class));
             variables.put(BILL_PAY_FAILED, exchange.getProperty(BILL_PAY_FAILED));
-            zeebeClient.newCompleteCommand(job.getKey()).variables(variables).send();
             logger.info("Zeebe variable {}", job.getVariablesAsMap());
+            client.newCompleteCommand(job.getKey()).variables(variables).send();
         }).name("billFetchResponse").maxJobsActive(workerMaxJobs).open();
 
         // setting response to callback url for payment status
