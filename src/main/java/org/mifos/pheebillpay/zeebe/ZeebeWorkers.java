@@ -171,6 +171,7 @@ public class ZeebeWorkers {
             producerTemplate.send("direct:paymentNotification-response", exchange);
             variables.put(BILL_PAY_RESPONSE, exchange.getProperty(BILL_PAY_RESPONSE));
             variables.put("state", "SUCCESS");
+            logger.info("state in billpayresponse {}", variables.get("state").toString());
             zeebeClient.newCompleteCommand(job.getKey()).variables(variables).send();
             logger.info("Zeebe variable {}", job.getVariablesAsMap());
         }).name("billPayResponse").maxJobsActive(workerMaxJobs).open();
