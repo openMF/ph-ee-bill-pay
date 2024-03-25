@@ -170,7 +170,7 @@ public class ZeebeWorkers {
             exchange.setProperty("status", variables.get("status"));
             producerTemplate.send("direct:paymentNotification-response", exchange);
             variables.put(BILL_PAY_RESPONSE, exchange.getProperty(BILL_PAY_RESPONSE));
-            variables.put("state", "ACCEPTED");
+            variables.put("state", "SUCCESS");
             zeebeClient.newCompleteCommand(job.getKey()).variables(variables).send();
             logger.info("Zeebe variable {}", job.getVariablesAsMap());
         }).name("billPayResponse").maxJobsActive(workerMaxJobs).open();
@@ -273,7 +273,7 @@ public class ZeebeWorkers {
             billRTPResponseDTO.setBillId(billId);
             billRTPResponseDTO.setRtpStatus(rtpStatus);
             billRTPResponseDTO.setRtpId(rtpId);
-            variables.put("state", "REQUEST ACCEPTED");
+            variables.put("state", "REQUEST_ACCEPTED");
             // billRTPResponseDTO.setRejectReason(rejectReason);
 
             HttpEntity<BillRTPResponseDTO> requestEntity = new HttpEntity<>(billRTPResponseDTO, headers);
