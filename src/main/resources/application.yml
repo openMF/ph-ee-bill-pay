@@ -97,3 +97,8 @@ billPay:
   billIdEmptyOriginal : "004"
   billIdEmpty : "00"
   billPayTimeoutId : "005"
+
+identity_account_mapper:
+  hostname : "https://identity-mapper.sandbox.fynarfin.io"
+  account_lookup: /beneficiary
+  account_lookup_callback: /accountLookupCallback
