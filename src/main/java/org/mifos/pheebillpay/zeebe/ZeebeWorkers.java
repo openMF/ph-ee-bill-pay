@@ -239,6 +239,7 @@ public class ZeebeWorkers {
                 responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, ResponseDTO.class);
             } catch (HttpClientErrorException | HttpServerErrorException e) {
                 logger.error(e.getMessage());
+                variables.put(PAYER_RTP_REQ, false);
             }
             if (responseEntity != null && responseEntity.getBody().getResponseCode().equals("00")) {
                 variables.put(PAYER_RTP_REQ, true);
