@@ -171,7 +171,6 @@ public class ZeebeWorkers {
             producerTemplate.send("direct:paymentNotification-response", exchange);
             variables.put(BILL_PAY_RESPONSE, exchange.getProperty(BILL_PAY_RESPONSE));
             variables.put("state", "SUCCESS");
-            logger.info("state in billpayresponse {}", variables.get("state").toString());
             zeebeClient.newCompleteCommand(job.getKey()).variables(variables).send();
             logger.info("Zeebe variable {}", job.getVariablesAsMap());
         }).name("billPayResponse").maxJobsActive(workerMaxJobs).open();
@@ -181,10 +180,8 @@ public class ZeebeWorkers {
             Map<String, Object> variables = job.getVariablesAsMap();
             String url = connectorContactPoint + "/billTransferRequests";
             String tenantId = variables.get("tenantId").toString();
-            // String transactionId = "123456778";
             String clientCorrelation = (String) variables.get("X-CorrelationID");
-            // String correlationId = variables.get("clientCorrelationId").toString();
-            // variables.put(TRANSACTION_ID, transactionId);
+
             variables.put("payerTenantId", payerFspTenant);
             variables.put("payerCallbackUrl", billPayContactPoint + payerRtpResponseEndpoint);
             String body = variables.get(BILL_RTP_REQ).toString();
