@@ -125,6 +125,7 @@ public class ZeebeWorkers {
                 variables.put(ERROR_INFORMATION, exchange.getProperty(ERROR_INFORMATION));
             }
             logger.info("Zeebe variable {}", job.getVariablesAsMap());
+
             zeebeClient.newCompleteCommand(job.getKey()).variables(variables).send().join();
 
         }).name("discover-biller").maxJobsActive(workerMaxJobs).open();
