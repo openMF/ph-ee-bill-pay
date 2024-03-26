@@ -31,7 +31,6 @@ import io.camunda.zeebe.client.api.response.ActivatedJob;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.UUID;
 import javax.annotation.PostConstruct;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
