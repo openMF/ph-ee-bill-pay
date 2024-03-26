@@ -125,6 +125,7 @@ public class ZeebeWorkers {
                 variables.put(ERROR_INFORMATION, exchange.getProperty(ERROR_INFORMATION));
             }
             logger.info("Zeebe variable {}", job.getVariablesAsMap());
+
             zeebeClient.newCompleteCommand(job.getKey()).variables(variables).send().join();
 
         }).name("discover-biller").maxJobsActive(workerMaxJobs).open();
@@ -149,8 +150,8 @@ public class ZeebeWorkers {
             producerTemplate.send("direct:bill-inquiry-response", exchange);
             variables.put(BILL_PAY_RESPONSE, exchange.getIn().getBody(String.class));
             variables.put(BILL_PAY_FAILED, exchange.getProperty(BILL_PAY_FAILED));
-            zeebeClient.newCompleteCommand(job.getKey()).variables(variables).send();
             logger.info("Zeebe variable {}", job.getVariablesAsMap());
+            client.newCompleteCommand(job.getKey()).variables(variables).send();
         }).name("billFetchResponse").maxJobsActive(workerMaxJobs).open();
 
         // setting response to callback url for payment status
@@ -170,6 +171,7 @@ public class ZeebeWorkers {
             exchange.setProperty("status", variables.get("status"));
             producerTemplate.send("direct:paymentNotification-response", exchange);
             variables.put(BILL_PAY_RESPONSE, exchange.getProperty(BILL_PAY_RESPONSE));
+            variables.put("state", "SUCCESS");
             zeebeClient.newCompleteCommand(job.getKey()).variables(variables).send();
             logger.info("Zeebe variable {}", job.getVariablesAsMap());
         }).name("billPayResponse").maxJobsActive(workerMaxJobs).open();
@@ -179,10 +181,8 @@ public class ZeebeWorkers {
             Map<String, Object> variables = job.getVariablesAsMap();
             String url = connectorContactPoint + "/billTransferRequests";
             String tenantId = variables.get("tenantId").toString();
-            String transactionId = "123456778";
             String clientCorrelation = (String) variables.get("X-CorrelationID");
-            // String correlationId = variables.get("clientCorrelationId").toString();
-            variables.put(TRANSACTION_ID, transactionId);
+
             variables.put("payerTenantId", payerFspTenant);
             variables.put("payerCallbackUrl", billPayContactPoint + payerRtpResponseEndpoint);
             String body = variables.get(BILL_RTP_REQ).toString();
@@ -208,7 +208,7 @@ public class ZeebeWorkers {
             PayerRequestDTO payerRequestDTO = new PayerRequestDTO();
             payerRequestDTO.setRequestId(String.valueOf(job.getElementInstanceKey()));
             payerRequestDTO.setRtpId(123456);
-            payerRequestDTO.setTransactionId("123234455");
+            payerRequestDTO.setTransactionId(variables.get(TRANSACTION_ID).toString());
             payerRequestDTO.setBillDetails(new BillDetails(billRTPReqDTO.getBillId(), billRTPReqDTO.getBill().getBillerName(),
                     billRTPReqDTO.getBill().getAmount()));
             ObjectMapper objectMapper = new ObjectMapper();
@@ -237,6 +237,7 @@ public class ZeebeWorkers {
                 responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, ResponseDTO.class);
             } catch (HttpClientErrorException | HttpServerErrorException e) {
                 logger.error(e.getMessage());
+                variables.put(PAYER_RTP_REQ, false);
             }
             if (responseEntity != null && responseEntity.getBody().getResponseCode().equals("00")) {
                 variables.put(PAYER_RTP_REQ, true);
@@ -272,6 +273,7 @@ public class ZeebeWorkers {
             billRTPResponseDTO.setBillId(billId);
             billRTPResponseDTO.setRtpStatus(rtpStatus);
             billRTPResponseDTO.setRtpId(rtpId);
+            variables.put("state", "REQUEST_ACCEPTED");
             // billRTPResponseDTO.setRejectReason(rejectReason);
 
             HttpEntity<BillRTPResponseDTO> requestEntity = new HttpEntity<>(billRTPResponseDTO, headers);
