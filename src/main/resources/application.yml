@@ -97,3 +97,14 @@ billPay:
   billIdEmptyOriginal : "004"
   billIdEmpty : "00"
   billPayTimeoutId : "005"
+
+management:
+  endpoint:
+    health:
+      enabled: true
+      probes:
+        enabled: true
+      liveness:
+        enabled: true
+      readiness:
+        enabled: true
