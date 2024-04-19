@@ -17,6 +17,6 @@ public interface BillInquiryApi {
     @GetMapping("/bills/{billId}")
     ResponseEntity<BillInquiryResponseDTO> billInquiry(@RequestHeader(value = "Platform-TenantId") String tenantId,
             @RequestHeader(value = "X-CorrelationID") String correlationId, @RequestHeader(value = "X-CallbackURL") String callbackURL,
-            @RequestHeader(value = "X-PayerFSP-Id") String payerFspId, @PathVariable(value = "billId") String billId,
+            @RequestHeader(value = "Payer-FSP-Id") String payerFspId, @PathVariable(value = "billId") String billId,
             @RequestParam(value = "fields", defaultValue = "inquiry") String field) throws ExecutionException, InterruptedException;
 }

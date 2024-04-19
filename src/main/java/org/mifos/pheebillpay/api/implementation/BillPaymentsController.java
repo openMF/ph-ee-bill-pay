@@ -1,10 +1,12 @@
 package org.mifos.pheebillpay.api.implementation;
 
 import java.util.concurrent.ExecutionException;
+import org.mifos.connector.common.channel.dto.PhErrorDTO;
 import org.mifos.pheebillpay.api.definition.BillPaymentsApi;
 import org.mifos.pheebillpay.data.BillInquiryResponseDTO;
 import org.mifos.pheebillpay.data.BillPaymentsReqDTO;
 import org.mifos.pheebillpay.service.BillPaymentsService;
+import org.mifos.pheebillpay.validators.BillPayValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,20 +18,19 @@ public class BillPaymentsController implements BillPaymentsApi {
     @Autowired
     private BillPaymentsService billPaymentsService;
 
+    @Autowired
+    private BillPayValidator billPayValidator;
+
     @Override
-    public ResponseEntity<BillInquiryResponseDTO> billPayments(String tenantId, String correlationId, String callbackURL, String payerFspId,
+    public <T> ResponseEntity<T> billPayments(String tenantId, String correlationId, String callbackURL, String payerFspId,
             BillPaymentsReqDTO body) throws ExecutionException {
         BillInquiryResponseDTO billInquiryResponseDTO = new BillInquiryResponseDTO();
-        String response = checkforValidity(tenantId, correlationId, callbackURL, payerFspId, body);
-        if (!response.equals("Valid")) {
-            if (response.equals("billId")) {
-                billInquiryResponseDTO.setError("Invalid Request: Bill Id Empty");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(billInquiryResponseDTO);
-            } else {
-                billInquiryResponseDTO.setError("Invalid Request: Mandatory Fields Missing, Missing field is " + response);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(billInquiryResponseDTO);
-            }
+
+        PhErrorDTO phErrorDTO = billPayValidator.validateBillPayments(body);
+        if (phErrorDTO != null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body((T) phErrorDTO);
         }
+
         try {
             billInquiryResponseDTO
                     .setTransactionId(billPaymentsService.billPayments(tenantId, correlationId, callbackURL, payerFspId, body));
@@ -37,29 +38,7 @@ public class BillPaymentsController implements BillPaymentsApi {
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(billInquiryResponseDTO);
-    }
-
-    private String checkforValidity(String tenantId, String correlationId, String callbackURL, String payerFspId, BillPaymentsReqDTO body) {
-        if (tenantId == null) {
-            return "tenantId";
-        } else if (correlationId == null) {
-            return "correlationId";
-        } else if (callbackURL == null) {
-            return "callbackURL";
-        } else if (payerFspId == null) {
-            return "payerFspId";
-        } else if (body == null) {
-            return "body";
-        } else if (body.getBillInquiryRequestId() == null) {
-            return "billInquiryRequestId";
-        } else if (body.getBillId() == null) {
-            return "billId";
-        } else if (body.getPaymentReferenceID() == null) {
-            return "paymentReferenceID";
-        } else {
-            return "Valid";
-        }
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body((T) billInquiryResponseDTO);
     }
 
 }

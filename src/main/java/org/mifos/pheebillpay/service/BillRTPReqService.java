@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.mifos.connector.common.channel.dto.PhErrorDTO;
 import org.mifos.pheebillpay.data.BillRTPReqDTO;
+import org.mifos.pheebillpay.validators.BillPayValidator;
 import org.mifos.pheebillpay.zeebe.ZeebeProcessStarter;
 import org.mifos.pheebillpay.zeebe.ZeebeVariables;
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ public class BillRTPReqService {
     @Autowired
     private ZeebeProcessStarter zeebeProcessStarter;
     @Autowired
-    private BillValidatorService billValidatorService;
+    private BillPayValidator billPayValidator;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -32,17 +33,18 @@ public class BillRTPReqService {
     private static final Logger logger = LoggerFactory.getLogger(BillRTPReqService.class);
 
     public PhErrorDTO billRtpReq(String tenantId, String correlationId, String callBackUrl, String billerId, BillRTPReqDTO body) {
-        PhErrorDTO phErrorDTO = billValidatorService.validateCreateVoucher(body);
+        PhErrorDTO phErrorDTO = billPayValidator.validateBillRTPRequest(body);
+        // billPayValidator.validateCreateVoucher(body);
         if (phErrorDTO == null) {
             Map<String, Object> extraVariables = new HashMap<>();
             extraVariables.put(ZeebeVariables.TENANT_ID, tenantId);
             extraVariables.put(ZeebeVariables.CLIENTCORRELATIONID, correlationId);
-            extraVariables.put(ZeebeVariables.BILL_ID, body.getBillId());
+            extraVariables.put(ZeebeVariables.BILL_ID, body.getBillID());
             extraVariables.put(ZeebeVariables.BILLER_ID, billerId);
             extraVariables.put(ZeebeVariables.CALLBACK_URL, callBackUrl);
-            extraVariables.put("payerFspId", body.getPayerFspDetail().getPayerFspId());
+            extraVariables.put("payerFspId", body.getPayerFspDetails().getPayerFSPID());
             extraVariables.put("payeePartyIdType", "Bill");
-            extraVariables.put("payeePartyId", body.getBillId());
+            extraVariables.put("payeePartyId", body.getBillID());
             extraVariables.put("payerPartyIdType", "Bill");
             extraVariables.put("payerPartyId", billerId);
             extraVariables.put("state", "INITIATED");
