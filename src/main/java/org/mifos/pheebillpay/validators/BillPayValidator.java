@@ -2,6 +2,7 @@ package org.mifos.pheebillpay.validators;
 
 import static org.mifos.connector.common.exception.PaymentHubError.ExtValidationError;
 
+import java.util.Objects;
 import org.mifos.connector.common.channel.dto.PhErrorDTO;
 import org.mifos.connector.common.exception.PaymentHubErrorCategory;
 import org.mifos.connector.common.validation.ValidatorBuilder;
@@ -81,20 +82,41 @@ public class BillPayValidator {
                 .isNullWithFailureCode(BillValidatorEnum.INVALID_REQUEST_TYPE).validateFieldMaxLengthWithFailureCodeAndErrorParams(
                         expectedRequestTypeLength, BillValidatorEnum.INVALID_REQUEST_TYPE_VALUE);
 
+        if (request.getRequestType() != null
+                && !(Objects.equals(request.getRequestType(), "00") || Objects.equals(request.getRequestType(), "01"))) {
+            validatorBuilder.reset().resource(resource).parameter(BillPayDTOConstant.requestType).value(request.getRequestType())
+                    .failWithCode(BillValidatorEnum.INVALID_REQUEST_TYPE_VALUE);
+        }
+
         // Checks for payerFSPDetails
-        if (request.getPayerFspDetails() != null) {
+        if (request.getRequestType() != null && Objects.equals(request.getRequestType(), "00")) {
+            validatorBuilder.reset().resource(resource).parameter(BillPayDTOConstant.payerFSPDetails).value(request.getPayerFspDetails())
+                    .isNullWithFailureCode(BillValidatorEnum.INVALID_PAYER_FSP_DETAILS);
+
+            if (request.getPayerFspDetails() == null) {
+                request.setPayerFspDetails(new PayerFSPDetail());
+            }
             validatePayerFSPDetails(request.getPayerFspDetails(), validatorBuilder);
         }
 
         // Checks for alias
-        if (request.getAlias() != null) {
+        if (request.getRequestType() != null && Objects.equals(request.getRequestType(), "01")) {
+            validatorBuilder.reset().resource(resource).parameter(BillPayDTOConstant.alias).value(request.getAlias())
+                    .isNullWithFailureCode(BillValidatorEnum.INVALID_ALIAS);
+
+            if (request.getAlias() == null) {
+                request.setAlias(new Alias());
+            }
             validateAlias(request.getAlias(), validatorBuilder);
         }
 
         // Checks for billDetails
-        if (request.getBillDetails() != null) {
-            validateBillDetails(request.getBillDetails(), validatorBuilder);
+        validatorBuilder.reset().resource(resource).parameter(BillPayDTOConstant.billDetails).value(request.getBillDetails())
+                .isNullWithFailureCode(BillValidatorEnum.INVALID_BILL_DETAILS);
+        if (request.getBillDetails() == null) {
+            request.setBillDetails(new Bill());
         }
+        validateBillDetails(request.getBillDetails(), validatorBuilder);
 
         return handleValidationErrors(validatorBuilder);
     }

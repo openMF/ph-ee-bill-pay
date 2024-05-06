@@ -3,12 +3,18 @@ package org.mifos.pheebillpay.validators;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.mifos.connector.common.validation.ValidationCodeType;
 import org.mifos.connector.common.validation.ValidatorBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class UnsupportedParameterValidator {
+
+    @Value("#{'${default_headers}'.split(',')}")
+    private Set<String> defaultHeader;
 
     final StringBuilder validationErrorCode = new StringBuilder("error.msg.parameter.unsupported");
 
@@ -28,7 +34,7 @@ public class UnsupportedParameterValidator {
     public void handleRequiredParameterValidation(List<String> fields, Set<String> requiredFields, ValidatorBuilder validatorBuilder) {
 
         for (final String fieldName : fields) {
-            if (fieldName != "additionalProperties" && !requiredFields.contains(fieldName)) {
+            if (!fieldName.equals("additionalProperties") && !requiredFields.contains(fieldName) && !defaultHeader.contains(fieldName)) {
 
                 final StringBuilder defaultEnglishMessage = new StringBuilder("The parameter ").append(fieldName)
                         .append(" is not supported.");

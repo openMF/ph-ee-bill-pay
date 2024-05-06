@@ -5,7 +5,8 @@ public class HeaderConstants {
 
     public static final String PLATFORM_TENANT_ID = "Platform-TenantId";
     public static final String X_CORRELATION_ID = "X-CorrelationID";
-    public static final String X_CALLBACK_URL = "X-CallbackURL";
+    public static final String X_CALLBACKURL = "X-CallbackURL";
+    public static final String X_CALLBACK_URL = "X-Callback-URL";
     public static final String PAYER_FSP_ID = "Payer-FSP-Id";
     public static final String X_PLATFORM_TENANT_ID = "X-Platform-TenantId";
     public static final String X_PAYER_FSP_ID = "X-PayerFSP-Id";

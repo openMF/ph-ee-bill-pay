@@ -34,7 +34,6 @@ public class BillRTPReqService {
 
     public PhErrorDTO billRtpReq(String tenantId, String correlationId, String callBackUrl, String billerId, BillRTPReqDTO body) {
         PhErrorDTO phErrorDTO = billPayValidator.validateBillRTPRequest(body);
-        // billPayValidator.validateCreateVoucher(body);
         if (phErrorDTO == null) {
             Map<String, Object> extraVariables = new HashMap<>();
             extraVariables.put(ZeebeVariables.TENANT_ID, tenantId);

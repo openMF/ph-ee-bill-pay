@@ -10,28 +10,27 @@ import javax.servlet.http.HttpServletRequest;
 import org.mifos.connector.common.channel.dto.PhErrorDTO;
 import org.mifos.connector.common.exception.PaymentHubErrorCategory;
 import org.mifos.connector.common.validation.ValidatorBuilder;
-import org.mifos.pheebillpay.service.HeaderBuilderService;
 import org.mifos.pheebillpay.utils.BillValidatorEnum;
 import org.mifos.pheebillpay.utils.HeaderConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class HeaderValidator {
 
     @Autowired
-    HeaderBuilderService headerBuilderService;
-    @Autowired
     UnsupportedParameterValidator unsupportedParameterValidator;
+
+    @Value("#{'${default_headers}'.split(',')}")
+    private List<String> defaultHeader;
 
     private static final String resource = "billPayValidator";
 
-    public PhErrorDTO validateBillInquiryRequest(HttpServletRequest request) {
+    public PhErrorDTO validateBillInquiryRequest(Set<String> requiredHeaders, HttpServletRequest request) {
         final ValidatorBuilder validatorBuilder = new ValidatorBuilder();
 
         List<String> headers = getHeaderList(request);
-        Set<String> requiredHeaders = headerBuilderService.buildHeadersForBillInquiryAPI();
-
         // Checks for unsupported parameters
         unsupportedParameterValidator.handleRequiredParameterValidation(headers, requiredHeaders, validatorBuilder);
 
@@ -47,8 +46,8 @@ public class HeaderValidator {
                 .validateFieldMaxLengthWithFailureCodeAndErrorParams(20, BillValidatorEnum.INVALID_PLATFORM_TENANT_ID_LENGTH);
 
         // Checks for X-Callback-URL
-        validatorBuilder.reset().resource(resource).parameter(HeaderConstants.X_CALLBACK_URL)
-                .value(request.getHeader(HeaderConstants.X_CALLBACK_URL)).isNullWithFailureCode(BillValidatorEnum.INVALID_CALLBACK_URL)
+        validatorBuilder.reset().resource(resource).parameter(HeaderConstants.X_CALLBACKURL)
+                .value(request.getHeader(HeaderConstants.X_CALLBACKURL)).isNullWithFailureCode(BillValidatorEnum.INVALID_CALLBACK_URL)
                 .validateFieldMaxLengthWithFailureCodeAndErrorParams(100, BillValidatorEnum.INVALID_CALLBACK_URL_LENGTH);
 
         // Checks for Payer-FSP-Id
@@ -60,11 +59,11 @@ public class HeaderValidator {
 
     }
 
-    public PhErrorDTO validateBillPaymentRequest(HttpServletRequest request) {
+    public PhErrorDTO validateBillPaymentRequest(Set<String> requiredHeaders, HttpServletRequest request) {
         final ValidatorBuilder validatorBuilder = new ValidatorBuilder();
 
         List<String> headers = getHeaderList(request);
-        Set<String> requiredHeaders = headerBuilderService.buildHeadersForBillPaymentsAPI();
+        // Set<String> requiredHeaders = headerBuilderService.buildHeadersForBillPaymentsAPI();
 
         // Checks for unsupported parameters
         unsupportedParameterValidator.handleRequiredParameterValidation(headers, requiredHeaders, validatorBuilder);
@@ -81,8 +80,8 @@ public class HeaderValidator {
                 .validateFieldMaxLengthWithFailureCodeAndErrorParams(20, BillValidatorEnum.INVALID_PLATFORM_TENANT_ID_LENGTH);
 
         // Checks for X-Callback-URL
-        validatorBuilder.reset().resource(resource).parameter(HeaderConstants.X_CALLBACK_URL)
-                .value(request.getHeader(HeaderConstants.X_CALLBACK_URL)).isNullWithFailureCode(BillValidatorEnum.INVALID_CALLBACK_URL)
+        validatorBuilder.reset().resource(resource).parameter(HeaderConstants.X_CALLBACKURL)
+                .value(request.getHeader(HeaderConstants.X_CALLBACKURL)).isNullWithFailureCode(BillValidatorEnum.INVALID_CALLBACK_URL)
                 .validateFieldMaxLengthWithFailureCodeAndErrorParams(100, BillValidatorEnum.INVALID_CALLBACK_URL_LENGTH);
 
         // Checks for X-PayerFSP-Id
@@ -94,11 +93,10 @@ public class HeaderValidator {
 
     }
 
-    public PhErrorDTO validateBillRTPRequest(HttpServletRequest request) {
+    public PhErrorDTO validateBillRTPRequest(Set<String> requiredHeaders, HttpServletRequest request) {
         final ValidatorBuilder validatorBuilder = new ValidatorBuilder();
 
         List<String> headers = getHeaderList(request);
-        Set<String> requiredHeaders = headerBuilderService.buildHeadersForBillRtpReqAPI();
 
         // Checks for unsupported parameters
         unsupportedParameterValidator.handleRequiredParameterValidation(headers, requiredHeaders, validatorBuilder);

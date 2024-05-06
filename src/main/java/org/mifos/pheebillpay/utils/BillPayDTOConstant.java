@@ -13,9 +13,11 @@ public class BillPayDTOConstant {
     public static final String payerFSPDetails = "payerFSPDetails";
     public static final String payerFSPID = "payerFSPID";
     public static final String financialAddress = "financialAddress";
+    public static final String alias = "alias";
     public static final String aliasType = "aliasType";
     public static final String aliasId = "aliasId";
     public static final String billerName = "billerName";
     public static final String amount = "amount";
+    public static final String billDetails = "billDetails";
 
 }

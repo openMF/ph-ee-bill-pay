@@ -110,6 +110,7 @@ management:
       readiness:
         enabled: true
 
+<<<<<<< HEAD
 operations:
   url: "http://ph-ee-operations-app/api/v1"
   auth-enabled: false
@@ -120,3 +121,5 @@ operations:
 status:
   billAcceptedId: "1234"
   billTimeout: 6
+
+default_headers : "user-agent,accept,postman-token,host,accept-encoding,connection,content-type,content-length"

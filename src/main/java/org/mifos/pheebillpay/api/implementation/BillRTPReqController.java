@@ -1,12 +1,18 @@
 package org.mifos.pheebillpay.api.implementation;
 
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import javax.servlet.http.HttpServletRequest;
 import org.mifos.connector.common.channel.dto.PhErrorDTO;
 import org.mifos.pheebillpay.api.definition.BillRtpReqApi;
 import org.mifos.pheebillpay.data.BillRTPReqDTO;
 import org.mifos.pheebillpay.data.ResponseDTO;
 import org.mifos.pheebillpay.service.BillRTPReqService;
 import org.mifos.pheebillpay.utils.BillPayEnum;
+import org.mifos.pheebillpay.service.PrepareHeader;
+import org.mifos.pheebillpay.service.PrepareHeaderImpl;
+import org.mifos.pheebillpay.utils.HeaderConstants;
+import org.mifos.pheebillpay.validators.HeaderValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +28,31 @@ public class BillRTPReqController implements BillRtpReqApi {
     @Autowired
     private BillRTPReqService billRTPReqService;
 
+    @Autowired
+    private HttpServletRequest request;
+
+    @Autowired
+    private HeaderValidator headerValidator;
+
+    @PrepareHeader(values = { HeaderConstants.X_PLATFORM_TENANT_ID, HeaderConstants.X_CLIENT_CORRELATION_ID, HeaderConstants.X_CALLBACK_URL,
+            HeaderConstants.X_REGISTERING_INSTITUTION_ID, HeaderConstants.X_BILLER_ID })
+    Set<String> requiredHeaders;
+
+    public BillRTPReqController() throws IllegalAccessException {
+        requiredHeaders = PrepareHeaderImpl.process(this);
+    }
+
     @Override
     public <T> ResponseEntity<T> billRTPReq(String tenantId, String correlationId, String callbackUrl, String billerId,
             BillRTPReqDTO billRTPReqDTO) throws ExecutionException, InterruptedException {
+        // validate for headers
+        PhErrorDTO phErrorDTO = headerValidator.validateBillRTPRequest(requiredHeaders, request);
+        if (phErrorDTO != null) {
+            return (ResponseEntity<T>) ResponseEntity.status(HttpStatus.BAD_REQUEST).body(phErrorDTO);
+        }
+
         try {
-            PhErrorDTO phErrorDTO = billRTPReqService.billRtpReq(tenantId, correlationId, callbackUrl, billerId, billRTPReqDTO);
+            phErrorDTO = billRTPReqService.billRtpReq(tenantId, correlationId, callbackUrl, billerId, billRTPReqDTO);
 
             if (phErrorDTO != null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body((T) phErrorDTO);
