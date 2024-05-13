@@ -10,6 +10,7 @@ plugins {
     id 'org.springframework.boot' version '2.6.2'
     id 'com.diffplug.spotless' version '6.19.0'
     id 'net.ltgt.errorprone' version '3.1.0'
+    id "com.google.osdetector" version "1.7.0"
 }
 
 repositories {
@@ -51,7 +52,7 @@ ext {
 
 dependencies {
     implementation 'com.google.code.gson:gson:2.8.9'
-    implementation 'org.mifos:ph-ee-connector-common:1.8.1-SNAPSHOT'
+    implementation 'org.mifos:ph-ee-connector-common:1.9.1-SNAPSHOT'
     implementation 'org.apache.camel.springboot:camel-spring-boot-starter:3.12.0'
     implementation('org.springframework.boot:spring-boot-starter-web:2.6.2')
     implementation "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
@@ -80,6 +81,7 @@ dependencies {
     checkstyle 'com.github.sevntu-checkstyle:sevntu-checks:1.44.1'
     implementation 'com.diffplug.gradle.spotless:spotless:2.4.1'
     implementation 'com.diffplug.spotless:spotless-plugin-gradle:6.17.0'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux:2.6.2'
 }
 
 configure(this) {
@@ -275,6 +277,12 @@ configure(this) {
                     "InconsistentCapitalization",
                     "MissingOverride",
                     )
+        }
+    }
+
+    dependencies {
+        if (osdetector.arch.equals("aarch_64")) {
+            implementation("io.netty:netty-all:4.1.68.Final")
         }
     }
 }
