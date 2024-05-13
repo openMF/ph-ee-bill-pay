@@ -112,6 +112,7 @@ management:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 operations:
   url: "http://ph-ee-operations-app/api/v1"
   auth-enabled: false
@@ -124,5 +125,4 @@ status:
   billTimeout: 6
 
 
-default_headers: "user-agent,accept,postman-token,host,accept-encoding,connection,content-type,content-length,x-request-id,
-x-real-ip,x-forwarded-host,x-forwarded-port,x-forwarded-proto,x-forwarded-scheme,x-scheme"
+default_headers: "user-agent,accept,postman-token,host,accept-encoding,connection,content-type,content-length,x-request-id,x-real-ip,x-forwarded-host,x-forwarded-port,x-forwarded-proto,x-forwarded-scheme,x-scheme"
