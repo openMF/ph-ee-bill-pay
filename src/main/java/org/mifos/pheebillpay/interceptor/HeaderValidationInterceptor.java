@@ -1,6 +1,12 @@
 package org.mifos.pheebillpay.interceptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.mifos.pheebillpay.service.ValidateHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,13 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -48,18 +47,18 @@ public class HeaderValidationInterceptor implements HandlerInterceptor {
     }
 
     private Set<String> extractRequiredHeaders(ValidateHeaders validateHeaders) {
-        return Arrays.stream(validateHeaders.requiredHeaders())
-                .map(String::toLowerCase)
-                .collect(Collectors.toSet());
+        return Arrays.stream(validateHeaders.requiredHeaders()).map(String::toLowerCase).collect(Collectors.toSet());
     }
 
     private Object getValidatorInstance(ValidateHeaders validateHeaders) {
         return applicationContext.getBean(validateHeaders.validatorClass());
     }
 
-    private Object invokeValidationMethod(ValidateHeaders validateHeaders, Object validatorInstance, Set<String> headersSet, HttpServletRequest request) throws Exception {
-        Method validationMethod = validatorInstance.getClass().getDeclaredMethod(validateHeaders.validationFunction(), Set.class, HttpServletRequest.class);
-        Object[] parameters = {headersSet, request};
+    private Object invokeValidationMethod(ValidateHeaders validateHeaders, Object validatorInstance, Set<String> headersSet,
+            HttpServletRequest request) throws Exception {
+        Method validationMethod = validatorInstance.getClass().getDeclaredMethod(validateHeaders.validationFunction(), Set.class,
+                HttpServletRequest.class);
+        Object[] parameters = { headersSet, request };
         return validationMethod.invoke(validatorInstance, parameters);
     }
 

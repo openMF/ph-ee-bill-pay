@@ -1,7 +1,6 @@
 package org.mifos.pheebillpay.api.implementation;
 
 import java.util.concurrent.ExecutionException;
-import javax.servlet.http.HttpServletRequest;
 import org.mifos.connector.common.channel.dto.PhErrorDTO;
 import org.mifos.pheebillpay.api.definition.BillRtpReqApi;
 import org.mifos.pheebillpay.data.BillRTPReqDTO;
@@ -27,9 +26,9 @@ public class BillRTPReqController implements BillRtpReqApi {
     private BillRTPReqService billRTPReqService;
 
     @Override
-    @ValidateHeaders(requiredHeaders = { HeaderConstants.X_PLATFORM_TENANT_ID, HeaderConstants.X_CLIENT_CORRELATION_ID, HeaderConstants.X_CALLBACK_URL,
-            HeaderConstants.X_REGISTERING_INSTITUTION_ID, HeaderConstants.X_BILLER_ID }, validatorClass = HeaderValidator.class,
-            validationFunction = "validateBillRTPRequest")
+    @ValidateHeaders(requiredHeaders = { HeaderConstants.X_PLATFORM_TENANT_ID, HeaderConstants.X_CLIENT_CORRELATION_ID,
+            HeaderConstants.X_CALLBACK_URL, HeaderConstants.X_REGISTERING_INSTITUTION_ID,
+            HeaderConstants.X_BILLER_ID }, validatorClass = HeaderValidator.class, validationFunction = "validateBillRTPRequest")
     public <T> ResponseEntity<T> billRTPReq(String tenantId, String correlationId, String callbackUrl, String billerId,
             BillRTPReqDTO billRTPReqDTO) throws ExecutionException, InterruptedException {
 

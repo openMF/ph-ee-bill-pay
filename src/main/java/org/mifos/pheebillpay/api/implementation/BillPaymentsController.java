@@ -23,8 +23,10 @@ public class BillPaymentsController implements BillPaymentsApi {
 
     @Autowired
     private BillPayValidator billPayValidator;
+
     @Override
-    @ValidateHeaders(requiredHeaders = { HeaderConstants.X_PLATFORM_TENANT_ID, HeaderConstants.X_CORRELATION_ID, HeaderConstants.X_CALLBACKURL,
+    @ValidateHeaders(requiredHeaders = { HeaderConstants.X_PLATFORM_TENANT_ID, HeaderConstants.X_CORRELATION_ID,
+            HeaderConstants.X_CALLBACKURL,
             HeaderConstants.X_PAYER_FSP_ID }, validatorClass = HeaderValidator.class, validationFunction = "validateBillPaymentRequest")
     public <T> ResponseEntity<T> billPayments(String tenantId, String correlationId, String callbackURL, String payerFspId,
             BillPaymentsReqDTO body) throws ExecutionException {

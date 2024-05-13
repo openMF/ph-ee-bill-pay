@@ -45,7 +45,8 @@ public class BillPayValidator {
 
         // Checks for billInquiryRequestId
         validatorBuilder.validateFieldIgnoreNullAndMaxLengthWithFailureCode(resource, BillPayDTOConstant.billInquiryRequestId,
-                request.getBillInquiryRequestId(), expectedBillInquiryRequestIdLength, BillValidatorEnum.INVALID_BILL_INQUIRY_REQUEST_ID_LENGTH);
+                request.getBillInquiryRequestId(), expectedBillInquiryRequestIdLength,
+                BillValidatorEnum.INVALID_BILL_INQUIRY_REQUEST_ID_LENGTH);
 
         // Checks for billId
         validatorBuilder.validateFieldIsNullAndMaxLengthWithFailureCode(resource, BillPayDTOConstant.billId, request.getBillId(),
@@ -53,8 +54,8 @@ public class BillPayValidator {
 
         // Checks for paymentReferenceID
         validatorBuilder.validateFieldIsNullAndMaxLengthWithFailureCode(resource, BillPayDTOConstant.paymentRefereneID,
-                request.getPaymentReferenceID(), BillValidatorEnum.INVALID_PAYMENT_REFERENCE_ID,
-                expectedPaymentRefereneIDLength, BillValidatorEnum.INVALID_PAYMENT_REFERENCE_ID_LENGTH);
+                request.getPaymentReferenceID(), BillValidatorEnum.INVALID_PAYMENT_REFERENCE_ID, expectedPaymentRefereneIDLength,
+                BillValidatorEnum.INVALID_PAYMENT_REFERENCE_ID_LENGTH);
 
         return handleValidationErrors(validatorBuilder);
     }
@@ -67,7 +68,8 @@ public class BillPayValidator {
 
         // Checks for clientCorrelationId
         validatorBuilder.validateFieldIgnoreNullAndMaxLengthWithFailureCode(resource, BillPayDTOConstant.clientCorrelationId,
-                request.getClientCorrelationId(), expectedClientCorrelationIdLength, BillValidatorEnum.INVALID_CLIENT_CORRELATION_ID_LENGTH);
+                request.getClientCorrelationId(), expectedClientCorrelationIdLength,
+                BillValidatorEnum.INVALID_CLIENT_CORRELATION_ID_LENGTH);
 
         // Checks for billID/billerID
         validatorBuilder.validateFieldIsNullAndMaxLengthWithFailureCode(resource, BillPayDTOConstant.billID, request.getBillID(),
@@ -128,8 +130,8 @@ public class BillPayValidator {
 
         // Checks for financialAddress
         validatorBuilder.validateFieldIsNullAndMaxLengthWithFailureCode(resource, BillPayDTOConstant.financialAddress,
-                payerFSPDetail.getFinancialAddress(), BillValidatorEnum.INVALID_FINANCIAL_ADDRESS,
-                expectedFinancialAddressLength, BillValidatorEnum.INVALID_FINANCIAL_ADDRESS_LENGTH);
+                payerFSPDetail.getFinancialAddress(), BillValidatorEnum.INVALID_FINANCIAL_ADDRESS, expectedFinancialAddressLength,
+                BillValidatorEnum.INVALID_FINANCIAL_ADDRESS_LENGTH);
     }
 
     private void validateAlias(Alias alias, ValidatorBuilder validatorBuilder) {
@@ -137,13 +139,12 @@ public class BillPayValidator {
         unsupportedParameterValidator.handleUnsupportedParameterValidation(alias.getAdditionalProperties(), validatorBuilder);
 
         // Checks for aliasType
-        validatorBuilder.validateFieldIsNullAndMaxLengthWithFailureCode(resource, BillPayDTOConstant.aliasType,
-                alias.getAliasType(), BillValidatorEnum.INVALID_ALIAS_TYPE, expectedAliasTypeLength,
-                BillValidatorEnum.INVALID_ALIAS_TYPE_VALUE);
+        validatorBuilder.validateFieldIsNullAndMaxLengthWithFailureCode(resource, BillPayDTOConstant.aliasType, alias.getAliasType(),
+                BillValidatorEnum.INVALID_ALIAS_TYPE, expectedAliasTypeLength, BillValidatorEnum.INVALID_ALIAS_TYPE_VALUE);
 
         // Checks for aliasId
-        validatorBuilder.validateFieldIgnoreNullAndMaxLengthWithFailureCode(resource, BillPayDTOConstant.aliasId,
-                alias.getAliasId(), expectedAliasIdLength, BillValidatorEnum.INVALID_ALIAS_ID_LENGTH);
+        validatorBuilder.validateFieldIgnoreNullAndMaxLengthWithFailureCode(resource, BillPayDTOConstant.aliasId, alias.getAliasId(),
+                expectedAliasIdLength, BillValidatorEnum.INVALID_ALIAS_ID_LENGTH);
 
     }
 
@@ -152,9 +153,8 @@ public class BillPayValidator {
         unsupportedParameterValidator.handleUnsupportedParameterValidation(bill.getAdditionalProperties(), validatorBuilder);
 
         // Checks for billerName
-        validatorBuilder.validateFieldIsNullAndMaxLengthWithFailureCode(resource, BillPayDTOConstant.billerName,
-                bill.getBillerName(), BillValidatorEnum.INVALID_BILLER_NAME, expectedBillerNameLength,
-                BillValidatorEnum.INVALID_BILLER_NAME_LENGTH);
+        validatorBuilder.validateFieldIsNullAndMaxLengthWithFailureCode(resource, BillPayDTOConstant.billerName, bill.getBillerName(),
+                BillValidatorEnum.INVALID_BILLER_NAME, expectedBillerNameLength, BillValidatorEnum.INVALID_BILLER_NAME_LENGTH);
 
         // Checks for amount
         validatorBuilder.reset().resource(resource).parameter(BillPayDTOConstant.amount).value(bill.getAmount())

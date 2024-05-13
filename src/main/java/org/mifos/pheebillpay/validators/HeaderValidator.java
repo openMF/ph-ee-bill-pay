@@ -65,23 +65,23 @@ public class HeaderValidator {
 
         // Checks for X-CorrelationID
         validatorBuilder.validateFieldIsNullAndMaxLengthWithFailureCode(resource, HeaderConstants.X_CORRELATION_ID,
-                request.getHeader(HeaderConstants.X_CORRELATION_ID), BillValidatorEnum.INVALID_CORRELATION_ID,
-                20, BillValidatorEnum.INVALID_CORRELATION_ID_LENGTH);
+                request.getHeader(HeaderConstants.X_CORRELATION_ID), BillValidatorEnum.INVALID_CORRELATION_ID, 20,
+                BillValidatorEnum.INVALID_CORRELATION_ID_LENGTH);
 
         // Checks for X-Platform-TenantId
         validatorBuilder.validateFieldIsNullAndMaxLengthWithFailureCode(resource, HeaderConstants.X_PLATFORM_TENANT_ID,
-                request.getHeader(HeaderConstants.X_PLATFORM_TENANT_ID), BillValidatorEnum.INVALID_PLATFORM_TENANT_ID,
-                20, BillValidatorEnum.INVALID_PLATFORM_TENANT_ID_LENGTH);
+                request.getHeader(HeaderConstants.X_PLATFORM_TENANT_ID), BillValidatorEnum.INVALID_PLATFORM_TENANT_ID, 20,
+                BillValidatorEnum.INVALID_PLATFORM_TENANT_ID_LENGTH);
 
         // Checks for X-Callback-URL
         validatorBuilder.validateFieldIsNullAndMaxLengthWithFailureCode(resource, HeaderConstants.X_CALLBACKURL,
-                request.getHeader(HeaderConstants.X_CALLBACKURL), BillValidatorEnum.INVALID_CALLBACK_URL,
-                100, BillValidatorEnum.INVALID_CALLBACK_URL_LENGTH);
+                request.getHeader(HeaderConstants.X_CALLBACKURL), BillValidatorEnum.INVALID_CALLBACK_URL, 100,
+                BillValidatorEnum.INVALID_CALLBACK_URL_LENGTH);
 
         // Checks for X-PayerFSP-Id
         validatorBuilder.validateFieldIsNullAndMaxLengthWithFailureCode(resource, HeaderConstants.X_PAYER_FSP_ID,
-                request.getHeader(HeaderConstants.X_PAYER_FSP_ID), BillValidatorEnum.INVALID_PAYER_FSP_ID,
-                20, BillValidatorEnum.INVALID_PAYER_FSP_ID_LENGTH);
+                request.getHeader(HeaderConstants.X_PAYER_FSP_ID), BillValidatorEnum.INVALID_PAYER_FSP_ID, 20,
+                BillValidatorEnum.INVALID_PAYER_FSP_ID_LENGTH);
         return handleValidationErrors(validatorBuilder);
 
     }
@@ -96,23 +96,23 @@ public class HeaderValidator {
 
         // Checks for X-Client-Correlation-ID
         validatorBuilder.validateFieldIsNullAndMaxLengthWithFailureCode(resource, HeaderConstants.X_CLIENT_CORRELATION_ID,
-                request.getHeader(HeaderConstants.X_CLIENT_CORRELATION_ID), BillValidatorEnum.INVALID_CORRELATION_ID,
-                20, BillValidatorEnum.INVALID_CORRELATION_ID_LENGTH);
+                request.getHeader(HeaderConstants.X_CLIENT_CORRELATION_ID), BillValidatorEnum.INVALID_CORRELATION_ID, 20,
+                BillValidatorEnum.INVALID_CORRELATION_ID_LENGTH);
 
         // Checks for X-Platform-TenantId
         validatorBuilder.validateFieldIsNullAndMaxLengthWithFailureCode(resource, HeaderConstants.X_PLATFORM_TENANT_ID,
-                request.getHeader(HeaderConstants.X_PLATFORM_TENANT_ID), BillValidatorEnum.INVALID_TENANT_ID,
-                20, BillValidatorEnum.INVALID_TENANT_ID_LENGTH);
+                request.getHeader(HeaderConstants.X_PLATFORM_TENANT_ID), BillValidatorEnum.INVALID_TENANT_ID, 20,
+                BillValidatorEnum.INVALID_TENANT_ID_LENGTH);
 
         // Checks for X-Biller-Id
         validatorBuilder.validateFieldIsNullAndMaxLengthWithFailureCode(resource, HeaderConstants.X_BILLER_ID,
-                request.getHeader(HeaderConstants.X_BILLER_ID), BillValidatorEnum.INVALID_BILLER_ID,
-                20, BillValidatorEnum.INVALID_BILLER_ID_LENGTH);
+                request.getHeader(HeaderConstants.X_BILLER_ID), BillValidatorEnum.INVALID_BILLER_ID, 20,
+                BillValidatorEnum.INVALID_BILLER_ID_LENGTH);
 
         // Checks for X-Callback-URL
         validatorBuilder.validateFieldIsNullAndMaxLengthWithFailureCode(resource, HeaderConstants.X_CALLBACK_URL,
-                request.getHeader(HeaderConstants.X_CALLBACK_URL), BillValidatorEnum.INVALID_CALLBACK_URL,
-                100, BillValidatorEnum.INVALID_CALLBACK_URL_LENGTH);
+                request.getHeader(HeaderConstants.X_CALLBACK_URL), BillValidatorEnum.INVALID_CALLBACK_URL, 100,
+                BillValidatorEnum.INVALID_CALLBACK_URL_LENGTH);
 
         // Checks for X-Registering-Institution-ID
         validatorBuilder.validateFieldIgnoreNullAndMaxLengthWithFailureCode(resource, HeaderConstants.X_REGISTERING_INSTITUTION_ID,
