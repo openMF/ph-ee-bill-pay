@@ -1,6 +1,5 @@
 package org.mifos.pheebillpay.api.definition;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.concurrent.ExecutionException;
@@ -18,5 +17,5 @@ public interface BillPaymentsApi {
     <T> ResponseEntity<T> billPayments(@RequestHeader(value = "X-Platform-TenantId") String tenantId,
             @RequestHeader(value = "X-CorrelationID") String correlationId, @RequestHeader(value = "X-CallbackURL") String callbackURL,
             @RequestHeader(value = "X-PayerFSP-Id") String payerFspId, @RequestBody BillPaymentsReqDTO body)
-            throws ExecutionException, InterruptedException, JsonProcessingException;
+            throws ExecutionException, InterruptedException;
 }
