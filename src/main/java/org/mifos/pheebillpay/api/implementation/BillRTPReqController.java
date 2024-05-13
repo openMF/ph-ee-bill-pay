@@ -1,6 +1,9 @@
 package org.mifos.pheebillpay.api.implementation;
 
 import java.util.concurrent.ExecutionException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.mifos.connector.common.channel.dto.PhErrorDTO;
 import org.mifos.pheebillpay.api.definition.BillRtpReqApi;
 import org.mifos.pheebillpay.data.BillRTPReqDTO;
@@ -17,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 public class BillRTPReqController implements BillRtpReqApi {
 
@@ -36,6 +40,10 @@ public class BillRTPReqController implements BillRtpReqApi {
             PhErrorDTO phErrorDTO = billRTPReqService.billRtpReq(tenantId, correlationId, callbackUrl, billerId, billRTPReqDTO);
 
             if (phErrorDTO != null) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String jsonResponse = objectMapper.writeValueAsString(phErrorDTO);
+
+                log.info("Error DTO is : {}", jsonResponse);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body((T) phErrorDTO);
             }
 

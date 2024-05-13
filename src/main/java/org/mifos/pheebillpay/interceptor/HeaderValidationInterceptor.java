@@ -68,6 +68,8 @@ public class HeaderValidationInterceptor implements HandlerInterceptor {
         response.setHeader("Content-Type", "application/json");
         response.setStatus(HttpStatus.BAD_REQUEST.value());
         response.getWriter().write(jsonResponse);
+
+        log.info("Interceptor response is : {}", jsonResponse);
     }
 
 }
