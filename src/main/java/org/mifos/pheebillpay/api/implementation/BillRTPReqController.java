@@ -1,16 +1,12 @@
 package org.mifos.pheebillpay.api.implementation;
 
-import static org.mifos.pheebillpay.utils.BillPayEnum.FAILED_RESPONSE_CODE;
-import static org.mifos.pheebillpay.utils.BillPayEnum.FAILED_RESPONSE_MESSAGE;
-import static org.mifos.pheebillpay.utils.BillPayEnum.SUCCESS_RESPONSE_CODE;
-import static org.mifos.pheebillpay.utils.BillPayEnum.SUCCESS_RESPONSE_MESSAGE;
-
 import java.util.concurrent.ExecutionException;
 import org.mifos.connector.common.channel.dto.PhErrorDTO;
 import org.mifos.pheebillpay.api.definition.BillRtpReqApi;
 import org.mifos.pheebillpay.data.BillRTPReqDTO;
 import org.mifos.pheebillpay.data.ResponseDTO;
 import org.mifos.pheebillpay.service.BillRTPReqService;
+import org.mifos.pheebillpay.utils.BillPayEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +34,12 @@ public class BillRTPReqController implements BillRtpReqApi {
 
         } catch (Exception e) {
             logger.info(e.getMessage());
-            ResponseDTO responseDTO = new ResponseDTO(FAILED_RESPONSE_CODE.getValue(), FAILED_RESPONSE_MESSAGE.getValue(), correlationId);
+            ResponseDTO responseDTO = new ResponseDTO(BillPayEnum.FAILED_RESPONSE_CODE.getValue(),
+                    BillPayEnum.FAILED_RESPONSE_MESSAGE.getValue(), correlationId);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body((T) responseDTO);
         }
-        ResponseDTO responseDTO = new ResponseDTO(SUCCESS_RESPONSE_CODE.getValue(), SUCCESS_RESPONSE_MESSAGE.getValue(), correlationId);
+        ResponseDTO responseDTO = new ResponseDTO(BillPayEnum.SUCCESS_RESPONSE_CODE.getValue(),
+                BillPayEnum.SUCCESS_RESPONSE_MESSAGE.getValue(), correlationId);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body((T) responseDTO);
     }
 }

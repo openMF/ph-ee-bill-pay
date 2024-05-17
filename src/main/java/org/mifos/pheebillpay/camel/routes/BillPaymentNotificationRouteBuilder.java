@@ -1,15 +1,10 @@
 package org.mifos.pheebillpay.camel.routes;
 
-import static org.mifos.pheebillpay.zeebe.ZeebeVariables.BILL_ID;
-import static org.mifos.pheebillpay.zeebe.ZeebeVariables.CALLBACK_URL;
-import static org.mifos.pheebillpay.zeebe.ZeebeVariables.CLIENTCORRELATIONID;
-import static org.mifos.pheebillpay.zeebe.ZeebeVariables.PAYER_FSP;
-import static org.mifos.pheebillpay.zeebe.ZeebeVariables.PLATFORM_TENANT;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.Exchange;
 import org.mifos.connector.common.camel.ErrorHandlerRouteBuilder;
 import org.mifos.pheebillpay.data.BillPaymentsResponseDTO;
+import org.mifos.pheebillpay.zeebe.ZeebeVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +24,11 @@ public class BillPaymentNotificationRouteBuilder extends ErrorHandlerRouteBuilde
         from("direct:paymentNotification-response").routeId("paymentNotification-response").log("Bill Inquiry over, moving to bill payment")
                 .setHeader("Content-Type", constant("application/json")).process(exchange -> {
                     BillPaymentsResponseDTO responseDTO = setResponseBody(exchange);
-                    exchange.getIn().setHeader(PLATFORM_TENANT, exchange.getIn().getHeader(PLATFORM_TENANT));
-                    exchange.getIn().setHeader(CLIENTCORRELATIONID, exchange.getIn().getHeader(CLIENTCORRELATIONID));
-                    exchange.getIn().setHeader(PAYER_FSP, exchange.getIn().getHeader(PAYER_FSP));
-                    exchange.getIn().setHeader(CALLBACK_URL, exchange.getProperty(CALLBACK_URL));
+                    exchange.getIn().setHeader(ZeebeVariables.PLATFORM_TENANT, exchange.getIn().getHeader(ZeebeVariables.PLATFORM_TENANT));
+                    exchange.getIn().setHeader(ZeebeVariables.CLIENTCORRELATIONID,
+                            exchange.getIn().getHeader(ZeebeVariables.CLIENTCORRELATIONID));
+                    exchange.getIn().setHeader(ZeebeVariables.PAYER_FSP, exchange.getIn().getHeader(ZeebeVariables.PAYER_FSP));
+                    exchange.getIn().setHeader(ZeebeVariables.CALLBACK_URL, exchange.getProperty(ZeebeVariables.CALLBACK_URL));
                     ObjectMapper objectMapper = new ObjectMapper();
                     String jsonString = objectMapper.writeValueAsString(responseDTO);
                     exchange.getIn().setBody(jsonString);
@@ -46,8 +42,8 @@ public class BillPaymentNotificationRouteBuilder extends ErrorHandlerRouteBuilde
         billPaymentsResponseDTO.setCode(exchange.getProperty("code").toString());
         billPaymentsResponseDTO.setStatus(exchange.getProperty("status").toString());
         billPaymentsResponseDTO.setReason(exchange.getProperty("reason").toString());
-        billPaymentsResponseDTO.setBillId(exchange.getIn().getHeader(BILL_ID).toString());
-        billPaymentsResponseDTO.setRequestID(exchange.getIn().getHeader(CLIENTCORRELATIONID).toString());
+        billPaymentsResponseDTO.setBillId(exchange.getIn().getHeader(ZeebeVariables.BILL_ID).toString());
+        billPaymentsResponseDTO.setRequestID(exchange.getIn().getHeader(ZeebeVariables.CLIENTCORRELATIONID).toString());
         return billPaymentsResponseDTO;
 
     }

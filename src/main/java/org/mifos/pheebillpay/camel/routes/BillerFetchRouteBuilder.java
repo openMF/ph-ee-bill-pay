@@ -1,13 +1,11 @@
 package org.mifos.pheebillpay.camel.routes;
 
-import static org.mifos.pheebillpay.zeebe.ZeebeVariables.BILL_ID;
-import static org.mifos.pheebillpay.zeebe.ZeebeVariables.ERROR_INFORMATION;
-
 import org.mifos.connector.common.camel.ErrorHandlerRouteBuilder;
 import org.mifos.pheebillpay.data.Bill;
 import org.mifos.pheebillpay.data.BillInquiryResponseDTO;
 import org.mifos.pheebillpay.properties.BillerDetails;
 import org.mifos.pheebillpay.properties.BillerDetailsProperties;
+import org.mifos.pheebillpay.zeebe.ZeebeVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +41,9 @@ public class BillerFetchRouteBuilder extends ErrorHandlerRouteBuilder {
             if (billerDetails != null) {
                 if (billerDetails.getId().equals(billId)) {
                     if (billId.equals(billIdEmptyOriginal)) {
-                        exchange.setProperty(BILL_ID, billIdEmpty);
+                        exchange.setProperty(ZeebeVariables.BILL_ID, billIdEmpty);
                     } else {
-                        exchange.setProperty(BILL_ID, billId);
+                        exchange.setProperty(ZeebeVariables.BILL_ID, billId);
                     }
                     exchange.setProperty("billerDetails", billerDetails);
                     exchange.setProperty("billerId", billerDetails.getId());
@@ -55,12 +53,12 @@ public class BillerFetchRouteBuilder extends ErrorHandlerRouteBuilder {
                     exchange.setProperty("billerFetchFailed", false);
                 } else {
                     logger.debug("Biller details not found for bill id: {}", billId);
-                    exchange.setProperty(ERROR_INFORMATION, "Unindentified Biller: Bill Id does not exist in biller table");
+                    exchange.setProperty(ZeebeVariables.ERROR_INFORMATION, "Unindentified Biller: Bill Id does not exist in biller table");
                     exchange.setProperty("billerFetchFailed", true);
                 }
             } else {
                 logger.debug("Biller details not found for bill id: {}", billId);
-                exchange.setProperty(ERROR_INFORMATION, "Unindentified Biller: Payer FI prefix does not match");
+                exchange.setProperty(ZeebeVariables.ERROR_INFORMATION, "Unindentified Biller: Payer FI prefix does not match");
                 exchange.setProperty("billerDetails", null);
                 exchange.setProperty("billerFetchFailed", true);
 

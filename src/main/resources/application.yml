@@ -98,6 +98,7 @@ billPay:
   billIdEmpty : "00"
   billPayTimeoutId : "005"
 
+
 management:
   endpoint:
     health:
@@ -108,3 +109,14 @@ management:
         enabled: true
       readiness:
         enabled: true
+
+operations:
+  url: "http://ph-ee-operations-app/api/v1"
+  auth-enabled: false
+  endpoint:
+    transfers: "/transfers?page=0&size=1&"
+    transactionReq: "/transactionRequests/?page=0&size=1"
+
+status:
+  billAcceptedId: "1234"
+  billTimeout: 6
