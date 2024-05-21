@@ -110,9 +110,6 @@ management:
       readiness:
         enabled: true
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 operations:
   url: "http://ph-ee-operations-app/api/v1"
   auth-enabled: false
