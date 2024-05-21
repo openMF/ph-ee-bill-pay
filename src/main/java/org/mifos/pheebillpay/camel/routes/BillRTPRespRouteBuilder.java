@@ -2,12 +2,12 @@ package org.mifos.pheebillpay.camel.routes;
 
 import static org.mifos.pheebillpay.utils.BillPayEnum.SUCCESS_RESPONSE_CODE;
 import static org.mifos.pheebillpay.utils.BillPayEnum.SUCCESS_RESPONSE_MESSAGE;
-import static org.mifos.pheebillpay.zeebe.ZeebeVariables.CLIENTCORRELATIONID;
 
 import org.apache.camel.Exchange;
 import org.json.JSONObject;
 import org.mifos.connector.common.camel.ErrorHandlerRouteBuilder;
 import org.mifos.pheebillpay.data.ResponseDTO;
+import org.mifos.pheebillpay.zeebe.ZeebeVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class BillRTPRespRouteBuilder extends ErrorHandlerRouteBuilder {
 
         from("direct:bill-rtp-resp").routeId("bill-rtp-resp").log("Sending response for bill rtp request")
                 .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200)).setBody(exchange -> {
-                    JSONObject response = setResponseBody(exchange.getProperty(CLIENTCORRELATIONID).toString());
+                    JSONObject response = setResponseBody(exchange.getProperty(ZeebeVariables.CLIENTCORRELATIONID).toString());
                     exchange.setProperty("response", response);
                     return response;
                 });

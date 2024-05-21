@@ -31,6 +31,9 @@ import io.camunda.zeebe.client.api.response.ActivatedJob;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -99,6 +102,14 @@ public class ZeebeWorkers {
     @Value("${payer_fsp.mockDebitFailed.financialAddress}")
     private String mockDebitFailedFinancialAddress;
 
+    @Value("${status.billAcceptedId}")
+    private String billAcceptedId;
+
+    @Value("${status.billTimeout}")
+    private int billTimeout;
+
+    private static final ScheduledExecutorService scheduledThreadPoolExecutor = Executors.newScheduledThreadPool(10);
+
     @PostConstruct
     public void setupWorkers() {
         // billerdetails
@@ -159,6 +170,11 @@ public class ZeebeWorkers {
             logger.info("Job '{}' started from process '{}' with key {}", job.getType(), job.getBpmnProcessId(), job.getKey());
             logWorkerDetails(job);
             Map<String, Object> variables = job.getVariablesAsMap();
+            String currentBillId = variables.get(BILL_ID).toString();
+            if (currentBillId.equals(billAcceptedId)) {
+                logger.debug("Bill Id matches, moving to execution pause");
+                pauseExec();
+            }
             Headers headers = new Headers.HeaderBuilder().addHeader("Platform-TenantId", variables.get(TENANT_ID).toString())
                     .addHeader(CLIENTCORRELATIONID, variables.get(CLIENTCORRELATIONID).toString())
                     .addHeader(PAYER_FSP, variables.get("payerFspId").toString()).addHeader(BILL_ID, variables.get(BILL_ID).toString())
@@ -353,5 +369,15 @@ public class ZeebeWorkers {
             sb.append(UUID.randomUUID().toString().replaceAll("-", ""));
         }
         return sb.substring(0, length);
+    }
+
+    private void pauseExec() {
+        try {
+            logger.debug("Pausing execution for capturing intermediary status ");
+            scheduledThreadPoolExecutor.schedule(() -> { }, billTimeout, TimeUnit.SECONDS).get();
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
+        logger.debug("Resuming execution post pause");
     }
 }

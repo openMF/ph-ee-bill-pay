@@ -1,9 +1,6 @@
 package org.mifos.pheebillpay.camel.routes;
 
 import static org.mifos.pheebillpay.utils.BillPayEnum.FAILED_RESPONSE_CODE;
-import static org.mifos.pheebillpay.zeebe.ZeebeVariables.BILL_INQUIRY_RESPONSE;
-import static org.mifos.pheebillpay.zeebe.ZeebeVariables.CLIENTCORRELATIONID;
-import static org.mifos.pheebillpay.zeebe.ZeebeVariables.ERROR_INFORMATION;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.Exchange;
@@ -11,6 +8,7 @@ import org.apache.camel.LoggingLevel;
 import org.mifos.connector.common.camel.ErrorHandlerRouteBuilder;
 import org.mifos.pheebillpay.data.Bill;
 import org.mifos.pheebillpay.data.ResponseDTO;
+import org.mifos.pheebillpay.zeebe.ZeebeVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +30,8 @@ public class BillInquiryRouteBuilder extends ErrorHandlerRouteBuilder {
 
         from("direct:bill-inquiry-response").routeId("bill-inquiry-response").log("Triggering callback for bill inquiry response")
                 .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200)).process(exchange -> {
-                    if (exchange.getProperty(BILL_INQUIRY_RESPONSE) != null) {
-                        Object obj = exchange.getProperty(BILL_INQUIRY_RESPONSE);
+                    if (exchange.getProperty(ZeebeVariables.BILL_INQUIRY_RESPONSE) != null) {
+                        Object obj = exchange.getProperty(ZeebeVariables.BILL_INQUIRY_RESPONSE);
                         ObjectMapper objectMapper = new ObjectMapper();
                         String jsonString = objectMapper.writeValueAsString(obj);
                         exchange.getIn().setBody(jsonString);
@@ -60,8 +58,8 @@ public class BillInquiryRouteBuilder extends ErrorHandlerRouteBuilder {
     private ResponseDTO setFailureMessage(Exchange exchange) {
         ResponseDTO responseDTO1 = new ResponseDTO();
         responseDTO1.setResponseCode(FAILED_RESPONSE_CODE.getValue());
-        responseDTO1.setResponseDescription(exchange.getProperty(ERROR_INFORMATION).toString());
-        responseDTO1.setRequestID(exchange.getProperty(CLIENTCORRELATIONID).toString());
+        responseDTO1.setResponseDescription(exchange.getProperty(ZeebeVariables.ERROR_INFORMATION).toString());
+        responseDTO1.setRequestID(exchange.getProperty(ZeebeVariables.CLIENTCORRELATIONID).toString());
         return responseDTO1;
     }
 

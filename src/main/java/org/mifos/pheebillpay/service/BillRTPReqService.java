@@ -1,12 +1,5 @@
 package org.mifos.pheebillpay.service;
 
-import static org.mifos.pheebillpay.zeebe.ZeebeVariables.BILLER_ID;
-import static org.mifos.pheebillpay.zeebe.ZeebeVariables.BILL_ID;
-import static org.mifos.pheebillpay.zeebe.ZeebeVariables.BILL_RTP_REQ;
-import static org.mifos.pheebillpay.zeebe.ZeebeVariables.CALLBACK_URL;
-import static org.mifos.pheebillpay.zeebe.ZeebeVariables.CLIENTCORRELATIONID;
-import static org.mifos.pheebillpay.zeebe.ZeebeVariables.TENANT_ID;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
@@ -14,6 +7,7 @@ import java.util.Map;
 import org.mifos.connector.common.channel.dto.PhErrorDTO;
 import org.mifos.pheebillpay.data.BillRTPReqDTO;
 import org.mifos.pheebillpay.zeebe.ZeebeProcessStarter;
+import org.mifos.pheebillpay.zeebe.ZeebeVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,11 +35,11 @@ public class BillRTPReqService {
         PhErrorDTO phErrorDTO = billValidatorService.validateCreateVoucher(body);
         if (phErrorDTO == null) {
             Map<String, Object> extraVariables = new HashMap<>();
-            extraVariables.put(TENANT_ID, tenantId);
-            extraVariables.put(CLIENTCORRELATIONID, correlationId);
-            extraVariables.put(BILL_ID, body.getBillId());
-            extraVariables.put(BILLER_ID, billerId);
-            extraVariables.put(CALLBACK_URL, callBackUrl);
+            extraVariables.put(ZeebeVariables.TENANT_ID, tenantId);
+            extraVariables.put(ZeebeVariables.CLIENTCORRELATIONID, correlationId);
+            extraVariables.put(ZeebeVariables.BILL_ID, body.getBillId());
+            extraVariables.put(ZeebeVariables.BILLER_ID, billerId);
+            extraVariables.put(ZeebeVariables.CALLBACK_URL, callBackUrl);
             extraVariables.put("payerFspId", body.getPayerFspDetail().getPayerFspId());
             extraVariables.put("payeePartyIdType", "Bill");
             extraVariables.put("payeePartyId", body.getBillId());
@@ -60,7 +54,7 @@ public class BillRTPReqService {
                 logger.error(e.getMessage());
             }
 
-            extraVariables.put(BILL_RTP_REQ, jsonString);
+            extraVariables.put(ZeebeVariables.BILL_RTP_REQ, jsonString);
             // adding a method to be implemented that checks the rrequest and perofrms als if needed
             // checkRequest(body);
             String tenantSpecificBpmn = billPayFlow.replace("{dfspid}", tenantId);
