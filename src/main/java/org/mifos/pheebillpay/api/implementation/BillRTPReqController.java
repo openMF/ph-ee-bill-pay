@@ -1,14 +1,13 @@
 package org.mifos.pheebillpay.api.implementation;
 
 import java.util.concurrent.ExecutionException;
-
 import org.mifos.connector.common.channel.dto.PhErrorDTO;
 import org.mifos.pheebillpay.api.definition.BillRtpReqApi;
 import org.mifos.pheebillpay.data.BillRTPReqDTO;
 import org.mifos.pheebillpay.data.ResponseDTO;
 import org.mifos.pheebillpay.service.BillRTPReqService;
-import org.mifos.pheebillpay.utils.BillPayEnum;
 import org.mifos.pheebillpay.service.ValidateHeaders;
+import org.mifos.pheebillpay.utils.BillPayEnum;
 import org.mifos.pheebillpay.utils.HeaderConstants;
 import org.mifos.pheebillpay.validators.HeaderValidator;
 import org.slf4j.Logger;
