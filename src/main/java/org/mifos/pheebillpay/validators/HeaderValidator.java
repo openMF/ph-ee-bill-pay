@@ -22,7 +22,7 @@ public class HeaderValidator {
     @Autowired
     UnsupportedParameterValidator unsupportedParameterValidator;
 
-    @Value("#{'${default_headers}'.split(',')}")
+    @Value("#{'${default_api_headers}'.split(',')}")
     private List<String> defaultHeader;
 
     private static final String resource = "billPayValidator";

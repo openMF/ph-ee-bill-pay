@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class UnsupportedParameterValidator {
 
-    @Value("#{'${default_headers}'.split(',')}")
+    @Value("#{'${default_api_headers}'.split(',')}")
     private Set<String> defaultHeader;
 
     final StringBuilder validationErrorCode = new StringBuilder("error.msg.parameter.unsupported");
