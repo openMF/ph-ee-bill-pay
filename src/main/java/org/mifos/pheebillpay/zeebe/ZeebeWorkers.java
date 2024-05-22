@@ -204,13 +204,13 @@ public class ZeebeWorkers {
             String body = variables.get(BILL_RTP_REQ).toString();
             String billerId = variables.get("billerId").toString();
             BillRTPReqDTO billRTPReqDTO = objectMapper.readValue(body, BillRTPReqDTO.class);
-            if (billRTPReqDTO.getPayerFspDetail() != null) {
-                if (billRTPReqDTO.getPayerFspDetail().getPayerFspId().equals(mockPayerUnreachableFspId)
-                        && billRTPReqDTO.getPayerFspDetail().getFinancialAddress().equals(mockPayerUnreachableFinancialAddress)) {
+            if (billRTPReqDTO.getPayerFspDetails() != null) {
+                if (billRTPReqDTO.getPayerFspDetails().getPayerFSPID().equals(mockPayerUnreachableFspId)
+                        && billRTPReqDTO.getPayerFspDetails().getFinancialAddress().equals(mockPayerUnreachableFinancialAddress)) {
                     variables.put("payerRtpRequestSuccess", false);
                     variables.put("errorInformation", "Payer FI was unreachable");
-                } else if (billRTPReqDTO.getPayerFspDetail().getPayerFspId().equals(mockDebitFailedFspId)
-                        && billRTPReqDTO.getPayerFspDetail().getFinancialAddress().equals(mockDebitFailedFinancialAddress)) {
+                } else if (billRTPReqDTO.getPayerFspDetails().getPayerFSPID().equals(mockDebitFailedFspId)
+                        && billRTPReqDTO.getPayerFspDetails().getFinancialAddress().equals(mockDebitFailedFinancialAddress)) {
                     variables.put("payerRtpRequestSuccess", false);
                     variables.put("errorInformation", "Payer FSP is unable to debit amount");
                 } else {
@@ -218,15 +218,15 @@ public class ZeebeWorkers {
                 }
             }
 
-            variables.put(BILLER_NAME, billRTPReqDTO.getBill().getBillerName());
-            variables.put(BILL_AMOUNT, billRTPReqDTO.getBill().getAmount());
+            variables.put(BILLER_NAME, billRTPReqDTO.getBillDetails().getBillerName());
+            variables.put(BILL_AMOUNT, billRTPReqDTO.getBillDetails().getAmount());
             variables.put(RTP_ID, 123456);
             PayerRequestDTO payerRequestDTO = new PayerRequestDTO();
             payerRequestDTO.setRequestId(String.valueOf(job.getElementInstanceKey()));
             payerRequestDTO.setRtpId(123456);
             payerRequestDTO.setTransactionId(variables.get(TRANSACTION_ID).toString());
-            payerRequestDTO.setBillDetails(new BillDetails(billRTPReqDTO.getBillId(), billRTPReqDTO.getBill().getBillerName(),
-                    billRTPReqDTO.getBill().getAmount()));
+            payerRequestDTO.setBillDetails(new BillDetails(billRTPReqDTO.getBillID(), billRTPReqDTO.getBillDetails().getBillerName(),
+                    billRTPReqDTO.getBillDetails().getAmount()));
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonPayload = objectMapper.writeValueAsString(payerRequestDTO);
 

@@ -6,7 +6,10 @@ import org.mifos.pheebillpay.api.definition.BillRtpReqApi;
 import org.mifos.pheebillpay.data.BillRTPReqDTO;
 import org.mifos.pheebillpay.data.ResponseDTO;
 import org.mifos.pheebillpay.service.BillRTPReqService;
+import org.mifos.pheebillpay.service.ValidateHeaders;
 import org.mifos.pheebillpay.utils.BillPayEnum;
+import org.mifos.pheebillpay.utils.HeaderConstants;
+import org.mifos.pheebillpay.validators.HeaderValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +26,12 @@ public class BillRTPReqController implements BillRtpReqApi {
     private BillRTPReqService billRTPReqService;
 
     @Override
+    @ValidateHeaders(requiredHeaders = { HeaderConstants.X_PLATFORM_TENANT_ID, HeaderConstants.X_CLIENT_CORRELATION_ID,
+            HeaderConstants.X_CALLBACK_URL, HeaderConstants.X_REGISTERING_INSTITUTION_ID,
+            HeaderConstants.X_BILLER_ID }, validatorClass = HeaderValidator.class, validationFunction = "validateBillRTPRequest")
     public <T> ResponseEntity<T> billRTPReq(String tenantId, String correlationId, String callbackUrl, String billerId,
             BillRTPReqDTO billRTPReqDTO) throws ExecutionException, InterruptedException {
+
         try {
             PhErrorDTO phErrorDTO = billRTPReqService.billRtpReq(tenantId, correlationId, callbackUrl, billerId, billRTPReqDTO);
 
