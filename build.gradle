@@ -13,13 +13,16 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
+    mavenCentral()
+    // mavenLocal()
     maven {
-        url = uri('https://repo.maven.apache.org/maven2')
+        url = uri('https://repo.maven.apache.org/maven2/')
     }
-
     maven {
-        url = uri('https://jfrog.sandbox.fynarfin.io/artifactory/fyn-libs-snapshot')
+        url = uri('https://mifos.jfrog.io/artifactory/phee-gradle-local')
+    }    
+    maven {
+        url = uri('https://mifos.jfrog.io/artifactory/mifosx-gradle-local')
     }
 }
 
@@ -51,7 +54,8 @@ ext {
 
 dependencies {
     implementation 'com.google.code.gson:gson:2.8.9'
-    implementation 'org.mifos:ph-ee-connector-common:1.8.1-SNAPSHOT'
+    implementation 'org.mifos:ph-ee-connector-common:1.8.1-gazelle'
+    // implementation 'org.mifos:ph-ee-connector-common:1.8.1-SNAPSHOT'
     implementation 'org.apache.camel.springboot:camel-spring-boot-starter:3.12.0'
     implementation('org.springframework.boot:spring-boot-starter-web:2.6.2')
     implementation "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
